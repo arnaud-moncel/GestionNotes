@@ -1,0 +1,21 @@
+<resources>
+    <string name="app_name">Gestion des Notes</string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+
+    <string name="add_table_dialog_message">Numero de la table :</string>
+    <string name="add_table_dialog_title">Ajouter une nouvelle table</string>
+    <string name="add_vat_dialog_message">Designation du groupe :</string>
+    <string name="add_vat_dialog_title">Nouveau groupe de TVA</string>
+    <string name="edit_vat_dialog_title">Edition du groupe de TVA</string>
+    <string name="table_item">Table numero : </string>
+
+    <string name="menu_carte">Gerer la carte</string>
+    <string name="menu_VAT">Gerer les groupe de TVA</string>
+    <string name="title_activity_table">Gestion de la table :</string>
+    <string name="title_activity_carte">Gestion de la carte</string>
+    <string name="title_activity_vat">Gestion des groups de TVA</string>
+    <string name="item_string_percent">%</string>
+    <string name="add_vat_dialog_percent">Pourcentage du groupe de TVA :</string>
+</resources>
