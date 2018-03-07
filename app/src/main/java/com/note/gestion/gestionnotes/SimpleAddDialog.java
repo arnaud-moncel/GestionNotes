@@ -27,6 +27,8 @@ public class SimpleAddDialog extends DialogFragment {
 
     public interface NoticeDialogListener {
         void onDialogPositiveClick(DialogFragment dialog);
+
+        void OnStop();
     }
 
     public static SimpleAddDialog newInstance(int title, int message ) {

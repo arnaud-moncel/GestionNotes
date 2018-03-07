@@ -2,6 +2,7 @@ package com.note.gestion.gestionnotes;
 
 import android.app.Activity;
 import android.app.DialogFragment;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -16,6 +17,11 @@ import android.widget.ListView;
 import com.note.gestion.vat.Vat;
 import com.note.gestion.vat.VatList;
 import com.note.gestion.vat.VatListAdapter;
+
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
 
 public class VatActivity extends AppCompatActivity
         implements DoubleAddDialog.NoticeDialogListener {
@@ -113,5 +119,22 @@ public class VatActivity extends AppCompatActivity
     @Override
     public void onBackPressed() {
         sendIntent();
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+
+        try {
+            FileOutputStream fos = openFileOutput( MainActivity.VAT_FILE_NAME, Context.MODE_PRIVATE );
+            ObjectOutputStream os = new ObjectOutputStream( fos );
+            os.writeObject( m_vatList );
+            os.close();
+            fos.close();
+        } catch ( FileNotFoundException e ) {
+            e.printStackTrace();
+        } catch ( IOException e ) {
+            e.printStackTrace();
+        }
     }
 }
