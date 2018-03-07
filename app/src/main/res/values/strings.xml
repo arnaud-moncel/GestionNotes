@@ -18,4 +18,5 @@
     <string name="title_activity_vat">Gestion des groups de TVA</string>
     <string name="item_string_percent">%</string>
     <string name="add_vat_dialog_percent">Pourcentage du groupe de TVA :</string>
+    <string name="menu_add_group_activity_carte">Ajouter un nouveau groupe</string>
 </resources>
