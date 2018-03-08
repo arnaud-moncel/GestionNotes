@@ -23,40 +23,6 @@
 
     <include layout="@layout/content_carte" />
 
-    <!--<RelativeLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|end"
-        android:layout_marginBottom="160dp"
-        android:orientation="vertical"
-        android:layout_marginRight="@dimen/fab_margin">
-
-        <TextView
-            android:id="@+id/label_add_group"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
-            android:gravity="end"
-            android:visibility="invisible"
-            android:layout_toLeftOf="@+id/fab_add_group"
-            android:layout_toStartOf="@+id/fab_add_group"
-            android:text="@string/menu_add_group_activity_carte"/>
-
-        <android.support.design.widget.FloatingActionButton
-            android:id="@+id/fab_add_group"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="end"
-            android:visibility="invisible"
-            android:tint="@android:color/background_light"
-            app:backgroundTint="#009688"
-            app:pressedTranslationZ="12dp"
-            android:src="@android:drawable/ic_dialog_dialer"
-            android:layout_alignParentEnd="true"
-            android:layout_alignParentRight="true"/>
-
-    </RelativeLayout>-->
-
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/fab_add_group"
         android:layout_width="wrap_content"
@@ -68,7 +34,7 @@
         android:tint="@android:color/background_light"
         app:backgroundTint="#009688"
         app:pressedTranslationZ="12dp"
-        android:src="@android:drawable/ic_dialog_dialer" />
+        android:src="@drawable/ic_dishes" />
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/fab_add_item"
@@ -81,7 +47,7 @@
         android:tint="@android:color/background_light"
         app:backgroundTint="#009688"
         app:pressedTranslationZ="12dp"
-        android:src="@android:drawable/ic_input_get" />
+        android:src="@drawable/ic_plate" />
 
 
     <android.support.design.widget.FloatingActionButton

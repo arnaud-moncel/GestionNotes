@@ -206,10 +206,6 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void OnStop() {
-    }
-
-    @Override
     public void onStop() {
         super.onStop();
 

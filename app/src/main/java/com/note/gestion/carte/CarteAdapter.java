@@ -1,4 +1,4 @@
-package com.note.gestion.table;
+package com.note.gestion.carte;
 
 import android.app.Activity;
 import android.content.Context;
@@ -7,22 +7,20 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
-import com.note.gestion.gestionnotes.R;
-
 import java.util.List;
 
 /**
- * Created by MSI on 20/02/2018.
+ * Created by Arnaud Moncel on 08/03/2018.
  */
 
-public class TableListAdapter extends ArrayAdapter<Table> {
-    private List<Table> m_tables;
+public class CarteAdapter extends ArrayAdapter<Item> {
+    private List<Item> m_items;
     private Context m_context;
     private int m_layoutResourceId;
 
-    public TableListAdapter( Context context, int resourceId,  List<Table> tables ) {
-        super( context, resourceId, tables );
-        m_tables = tables;
+    public CarteAdapter( Context context, int resourceId,  List<Item> items ) {
+        super( context, resourceId, items );
+        m_items = items;
         m_context = context;
         m_layoutResourceId = resourceId;
     }
@@ -33,8 +31,8 @@ public class TableListAdapter extends ArrayAdapter<Table> {
             convertView = ( ( Activity ) m_context ).getLayoutInflater().inflate( m_layoutResourceId, parent, false );
         }
 
-        ( ( TextView ) convertView.findViewById(android.R.id.text1)).setText( m_context.getString( R.string.table_item ) );
-        ( ( TextView ) convertView.findViewById(android.R.id.text2)).setText( m_tables.get( position ).getId() );
+        Item item = m_items.get( position );
+        ( (TextView) convertView.findViewById( android.R.id.text1 ) ).setText( item.getDesignation() );
 
         return convertView;
     }

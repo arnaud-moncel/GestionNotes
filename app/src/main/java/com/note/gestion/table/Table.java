@@ -7,7 +7,6 @@ import java.io.Serializable;
  */
 
 public class Table implements Serializable {
-
     private String m_id;
 
     public Table( String num ) {

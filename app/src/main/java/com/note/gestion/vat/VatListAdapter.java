@@ -17,8 +17,8 @@ import java.util.List;
 
 public class VatListAdapter extends ArrayAdapter<Vat> {
     private List<Vat> m_vats;
-    Context m_context;
-    int m_layoutResourceId;
+    private Context m_context;
+    private int m_layoutResourceId;
 
     public VatListAdapter( Context context, int resourceId, List<Vat> tables ) {
         super( context, resourceId, tables );
@@ -32,8 +32,6 @@ public class VatListAdapter extends ArrayAdapter<Vat> {
         if ( convertView == null ) {
             convertView = ( ( Activity ) m_context ).getLayoutInflater().inflate( m_layoutResourceId, parent, false );
         }
-
-        // TODO: 01/03/2018 faire en sorte de pouvoir modiifier le pourcentage des taux de TVA 
         
         Vat vat = m_vats.get( position );
         ( ( TextView ) convertView.findViewById( R.id.item_vat_text_view ) ).setText( vat.getDesignation() );

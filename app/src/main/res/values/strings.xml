@@ -15,8 +15,9 @@
     <string name="menu_VAT">Gerer les groupe de TVA</string>
     <string name="title_activity_table">Gestion de la table :</string>
     <string name="title_activity_carte">Gestion de la carte</string>
-    <string name="title_activity_vat">Gestion des groups de TVA</string>
+    <string name="title_activity_vat">Gestion des groupes de TVA</string>
     <string name="item_string_percent">%</string>
     <string name="add_vat_dialog_percent">Pourcentage du groupe de TVA :</string>
-    <string name="menu_add_group_activity_carte">Ajouter un nouveau groupe</string>
+    <string name="add_group_dialog_title">Ajouter un groupe de plat</string>
+    <string name="add_group_dialog_message">Designation du groupe :</string>
 </resources>
