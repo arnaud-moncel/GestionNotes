@@ -17,4 +17,17 @@
         android:layout_height="wrap_content"
         android:inputType="text" />
 
+    <TextView
+        android:id="@+id/spinner_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:labelFor="@+id/vat_spinner"/>
+
+    <Spinner
+        android:id="@+id/vat_spinner"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+    </Spinner>
+
 </LinearLayout>

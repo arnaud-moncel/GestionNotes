@@ -8,15 +8,15 @@ import java.io.Serializable;
 
 public class Vat implements Serializable {
     private String m_designation;
-    private double m_percent;
+    private Double m_percent;
 
-    public Vat( String designation, double percent ) {
+    public Vat( String designation, Double percent ) {
         m_designation = designation;
         m_percent = percent;
     }
 
     public String getDesignation() { return m_designation; }
-    public double getPercent() { return m_percent; }
+    public Double getPercent() { return m_percent; }
 
-    public void editVat( String des, double percent ) {  m_designation = des; m_percent = percent; }
+    public void editVat( String des, Double percent ) {  m_designation = des; m_percent = percent; }
 }

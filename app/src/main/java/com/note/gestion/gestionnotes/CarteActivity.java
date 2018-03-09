@@ -10,17 +10,22 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.EditText;
 import android.widget.GridView;
+import android.widget.Spinner;
 
-import com.note.gestion.carte.Carte;
 import com.note.gestion.carte.CarteAdapter;
+import com.note.gestion.carte.Group;
+import com.note.gestion.vat.Vat;
+import com.note.gestion.vat.VatList;
+
 
 public class CarteActivity extends AppCompatActivity
-        implements SimpleAddDialog.NoticeDialogListener {
+        implements SpinnerAddDialog.NoticeDialogListener {
 
-    private Carte m_carte = new Carte();
+    private VatList m_vatList;
+    private Group m_carte = new Group( "Carte", new Vat( "global", 0.0 ) );
     private CarteAdapter m_carteAdapter;
 
-    private boolean m_isFabOpen = false;
+    private Boolean m_isFabOpen = false;
 
     private FloatingActionButton m_fab;
     private FloatingActionButton m_fabAddItem;
@@ -30,6 +35,9 @@ public class CarteActivity extends AppCompatActivity
     private Animation m_animOpen;
     private Animation m_animRotBack;
     private Animation m_animRotFor;
+
+    private static final String CARTE_GROUP = "com.note.gestion.CARTE.GROUP";
+    private static final String CARTE_DISH = "com.note.gestion.CARTE.DISH";
 
     private void animateflocationBtn(){
         if( m_isFabOpen ){
@@ -58,6 +66,8 @@ public class CarteActivity extends AppCompatActivity
 
         getSupportActionBar().setDisplayHomeAsUpEnabled( true );
 
+        m_vatList = (VatList) getIntent().getSerializableExtra( MainActivity.VAT );
+
         m_fab = findViewById( R.id.fab );
         m_fab.setOnClickListener( new View.OnClickListener() {
             @Override
@@ -70,8 +80,14 @@ public class CarteActivity extends AppCompatActivity
         m_fabAddGroup.setOnClickListener( new  View.OnClickListener() {
             @Override
             public void onClick( View view ) {
-                DialogFragment addTableDialog = SimpleAddDialog.newInstance( R.string.add_group_dialog_title, R.string.add_group_dialog_message );
-                addTableDialog.show( getFragmentManager(), MainActivity.CARTE );
+                animateflocationBtn();
+                DialogFragment addGroupDialog = SpinnerAddDialog.newInstance(
+                        R.string.add_group_dialog_title,
+                        R.string.add_group_dialog_message,
+                        R.string.add_group_vat_dialog_message,
+                        m_vatList.toStringArray()
+                );
+                addGroupDialog.show( getFragmentManager(), CARTE_GROUP );
             }
         } );
 
@@ -79,6 +95,9 @@ public class CarteActivity extends AppCompatActivity
         m_fabAddItem.setOnClickListener( new  View.OnClickListener() {
             @Override
             public void onClick( View view ) {
+                animateflocationBtn();
+                DialogFragment addDishDialog = SimpleAddDialog.newInstance( R.string.add_dish_dialog_title, R.string.add_dish_dialog_message );
+                addDishDialog.show( getFragmentManager(), CARTE_DISH );
             }
         } );
 
@@ -105,8 +124,17 @@ public class CarteActivity extends AppCompatActivity
 
     @Override
     public void onDialogPositiveClick( DialogFragment dialog ) {
-        EditText newGroupEdt = dialog.getDialog().findViewById( R.id.edit_text );
-        m_carte.addGroup( newGroupEdt.getText().toString() );
+        EditText newEdt = dialog.getDialog().findViewById( R.id.edit_text );
+
+        if( dialog.getTag().equals( CARTE_GROUP ) ) {
+            Spinner newSpinner = dialog.getDialog().findViewById( R.id.vat_spinner );
+
+            Vat vat = m_vatList.getVat( newSpinner.getSelectedItemPosition() );
+            m_carte.addGroup( newEdt.getText().toString(), vat );
+        } else {
+            m_carte.addDish( newEdt.getText().toString(), 15.0 );
+        }
+
         m_carteAdapter.notifyDataSetChanged();
     }
 }

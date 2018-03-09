@@ -1,13 +1,17 @@
 package com.note.gestion.carte;
 
+import com.note.gestion.vat.Vat;
+
 /**
  * Created by Arnaud Moncel on 08/03/2018.
  */
 
-public class Item {
+abstract class Item {
     protected String m_designation;
+    protected Vat m_vat;
 
-    public Item( String designation ) { m_designation = designation; }
+    protected Item( String designation, Vat vat ) { m_designation = designation; m_vat = vat; }
 
     public String getDesignation() { return m_designation; }
+    public Vat getVat() { return m_vat; }
 }

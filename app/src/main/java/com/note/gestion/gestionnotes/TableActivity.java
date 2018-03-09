@@ -11,7 +11,7 @@ import com.note.gestion.table.Table;
 
 public class TableActivity extends AppCompatActivity {
 
-    Table m_table;
+    private Table m_table;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

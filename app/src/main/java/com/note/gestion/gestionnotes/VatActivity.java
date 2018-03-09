@@ -86,7 +86,7 @@ public class VatActivity extends AppCompatActivity
         String des = newVatEdt.getText().toString();
 
         EditText newVatEdtc = dialog.getDialog().findViewById( R.id.edit_decimal );
-        double percent = Double.valueOf(newVatEdtc.getText().toString());
+        Double percent = Double.valueOf(newVatEdtc.getText().toString());
 
         if( m_editedVatId > -1 ) {
             m_vatList.editVat( m_editedVatId, des, percent );

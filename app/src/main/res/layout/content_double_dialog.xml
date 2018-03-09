@@ -8,7 +8,8 @@
     <TextView
         android:id="@+id/text_view"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
+        android:layout_height="wrap_content"
+        android:labelFor="@+id/edit_text"/>
 
     <EditText
         android:id="@+id/edit_text"
@@ -19,7 +20,8 @@
     <TextView
         android:id="@+id/decimal_view"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
+        android:layout_height="wrap_content"
+        android:labelFor="@+id/edit_decimal"/>
 
     <EditText
         android:id="@+id/edit_decimal"

@@ -12,6 +12,7 @@ import android.text.TextWatcher;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
+import android.widget.TextView;
 
 /**
  * Created by Arnaud Moncel on 22/02/2018.
@@ -46,7 +47,7 @@ public class SimpleAddDialog extends DialogFragment {
 
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         AlertDialog.Builder builder = new AlertDialog.Builder( getActivity() );
-        builder.setMessage( getArguments().getInt( MSG ) ).setTitle( getArguments().getInt( TITLE ) );
+        builder.setTitle( getArguments().getInt( TITLE ) );
 
         View dialogView = getActivity().getLayoutInflater().inflate( R.layout.content_simple_dialog, null );
 
@@ -79,6 +80,8 @@ public class SimpleAddDialog extends DialogFragment {
                 });
             }
         });
+
+        ((TextView) dialogView.findViewById( R.id.text_view )).setText( getArguments().getInt( MSG ) );
 
         EditText newEdt = dialogView.findViewById(R.id.edit_text);
         newEdt.addTextChangedListener(new TextWatcher() {

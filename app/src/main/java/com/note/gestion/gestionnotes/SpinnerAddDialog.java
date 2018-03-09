@@ -11,14 +11,18 @@ import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.TextView;
 
+import java.util.ArrayList;
+
 /**
- * Created by Arnaud Moncel on 22/02/2018.
+ * Created by Arnaud Moncel on 09/03/18.
  */
 
-public class DoubleAddDialog extends DialogFragment {
+public class SpinnerAddDialog extends DialogFragment {
 
     private NoticeDialogListener m_Listener;
     private AlertDialog m_dialog;
@@ -26,34 +30,19 @@ public class DoubleAddDialog extends DialogFragment {
     private static final String TITLE = "title";
     private static final String MSG1 = "message1";
     private static final String MSG2 = "message2";
-    private static final String MSGEDT = "messageEdt";
-    private static final String MSGEDTD = "messageEdtd";
-
-    private Boolean m_edtNotEmpty = false;
-    private Boolean m_edtdNotEmpty = false;
+    private static final String STRINGS = "strings";
 
     public interface NoticeDialogListener {
         void onDialogPositiveClick(DialogFragment dialog);
     }
 
-    public static DoubleAddDialog newInstance( int title, int message1, int message2 ) {
-        DoubleAddDialog dialog = new DoubleAddDialog();
+    public static SpinnerAddDialog newInstance(int title, int message1, int message2, ArrayList<String> strings) {
+        SpinnerAddDialog dialog = new SpinnerAddDialog();
         Bundle args = new Bundle();
         args.putInt( TITLE, title);
         args.putInt( MSG1, message1 );
         args.putInt( MSG2, message2 );
-        dialog.setArguments(args);
-        return dialog;
-    }
-
-    public static DoubleAddDialog newInstance( int title, int message1, int message2, String msgEdt, Double msgEdtd ) {
-        DoubleAddDialog dialog = new DoubleAddDialog();
-        Bundle args = new Bundle();
-        args.putInt( TITLE, title);
-        args.putInt( MSG1, message1 );
-        args.putInt( MSG2, message2 );
-        args.putString( MSGEDT, msgEdt );
-        args.putDouble( MSGEDTD, msgEdtd );
+        args.putStringArrayList( STRINGS, strings );
         dialog.setArguments(args);
         return dialog;
     }
@@ -68,13 +57,13 @@ public class DoubleAddDialog extends DialogFragment {
         AlertDialog.Builder builder = new AlertDialog.Builder( getActivity() );
         builder.setTitle( getArguments().getInt( TITLE ) );
 
-        View dialogView = getActivity().getLayoutInflater().inflate( R.layout.content_double_dialog, null );
+        View dialogView = getActivity().getLayoutInflater().inflate( R.layout.content_spinner_dialog, null );
 
         builder.setView( dialogView );
 
         builder.setPositiveButton( android.R.string.ok, new DialogInterface.OnClickListener() {
             public void onClick( DialogInterface dialog, int id ) {
-                m_Listener.onDialogPositiveClick( DoubleAddDialog.this );
+                m_Listener.onDialogPositiveClick( SpinnerAddDialog.this );
             }
         });
 
@@ -100,14 +89,10 @@ public class DoubleAddDialog extends DialogFragment {
             }
         });
 
-        ((TextView) dialogView.findViewById( R.id.text_view )).setText( getArguments().getInt( MSG1 ) );
-        ((TextView) dialogView.findViewById( R.id.decimal_view)).setText( getArguments().getInt( MSG2 ) );
+        ((TextView) dialogView.findViewById( R.id.text_view ) ).setText( getArguments().getInt( MSG1 ) );
+        ((TextView) dialogView.findViewById( R.id.spinner_view ) ).setText( getArguments().getInt( MSG2 ) );
 
         EditText nEdt = dialogView.findViewById(R.id.edit_text);
-        if( getArguments().containsKey( MSGEDT ) ) {
-            nEdt.setText( getArguments().getString( MSGEDT ) );
-            m_edtNotEmpty = true;
-        }
         nEdt.addTextChangedListener(new TextWatcher() {
 
             @Override
@@ -118,13 +103,9 @@ public class DoubleAddDialog extends DialogFragment {
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
                 if (TextUtils.isEmpty( charSequence )) {
-                    m_edtNotEmpty = false;
                     m_dialog.getButton( AlertDialog.BUTTON_POSITIVE ).setEnabled(false);
                 } else {
-                    m_edtNotEmpty = true;
-                    if( m_edtdNotEmpty ) {
-                        m_dialog.getButton( AlertDialog.BUTTON_POSITIVE ).setEnabled(true);
-                    }
+                    m_dialog.getButton( AlertDialog.BUTTON_POSITIVE ).setEnabled(true);
                 }
             }
 
@@ -133,35 +114,10 @@ public class DoubleAddDialog extends DialogFragment {
             }
         });
 
-        EditText nEdtd = dialogView.findViewById(R.id.edit_decimal);
-        if( getArguments().containsKey( MSGEDTD ) ) {
-            nEdtd.setText( String.valueOf( getArguments().getDouble( MSGEDTD ) ) );
-            m_edtdNotEmpty = true;
-        }
-        nEdtd.addTextChangedListener(new TextWatcher() {
-
-            @Override
-            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                if (TextUtils.isEmpty( charSequence )) {
-                    m_edtdNotEmpty = false;
-                    m_dialog.getButton( AlertDialog.BUTTON_POSITIVE ).setEnabled(false);
-                } else {
-                    m_edtdNotEmpty = true;
-                    if( m_edtNotEmpty ){
-                        m_dialog.getButton( AlertDialog.BUTTON_POSITIVE ).setEnabled(true);
-                    }
-                }
-            }
-
-            @Override
-            public void afterTextChanged(Editable editable) {
-            }
-        });
+        Spinner nSpinner = dialogView.findViewById( R.id.vat_spinner );
+        ArrayAdapter<String> adapter = new ArrayAdapter<>( m_dialog.getContext(), android.R.layout.simple_spinner_item, getArguments().getStringArrayList( STRINGS ) );
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        nSpinner.setAdapter(adapter);
 
         return m_dialog;
     }

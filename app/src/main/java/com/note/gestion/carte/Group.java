@@ -1,5 +1,7 @@
 package com.note.gestion.carte;
 
+import com.note.gestion.vat.Vat;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,5 +12,11 @@ import java.util.List;
 public class Group extends Item {
     private List<Item> m_items = new ArrayList<>();
 
-    public Group( String designation ) { super( designation ); }
+    public Group(String designation, Vat vat) { super( designation, vat ); }
+
+    public void addGroup( String designation, Vat vat ) { m_items.add( new Group( designation, vat ) ); }
+    public void addDish( String designation, Double price ) { m_items.add( new Dish( designation, price, m_vat ) ); }
+
+    public List<Item> getItems() { return m_items; }
+
 }

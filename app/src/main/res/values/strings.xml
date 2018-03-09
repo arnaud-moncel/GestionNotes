@@ -20,4 +20,7 @@
     <string name="add_vat_dialog_percent">Pourcentage du groupe de TVA :</string>
     <string name="add_group_dialog_title">Ajouter un groupe de plat</string>
     <string name="add_group_dialog_message">Designation du groupe :</string>
+    <string name="add_dish_dialog_title">Ajouter un plat</string>
+    <string name="add_dish_dialog_message">Designation du plat :</string>
+    <string name="add_group_vat_dialog_message">Groupe de TVA :</string>
 </resources>

@@ -40,7 +40,7 @@ public class MainActivity extends AppCompatActivity
     private VatList m_vatList;
 
     public static final String TABLE = "com.note.gestion.TABLE";
-    public static final String CARTE = "com.note.gestion.CASTE";
+    public static final String CARTE = "com.note.gestion.CARTE";
     public static final String VAT = "com.note.gestion.VAT";
 
     public static final String TABLE_FILE_NAME = "tables";
