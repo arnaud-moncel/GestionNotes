@@ -8,6 +8,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.GridView;
 import android.widget.Spinner;
@@ -17,13 +18,21 @@ import com.note.gestion.carte.Group;
 import com.note.gestion.vat.Vat;
 import com.note.gestion.vat.VatList;
 
+import java.util.ArrayDeque;
+import java.util.Queue;
+
 
 public class CarteActivity extends AppCompatActivity
-        implements SpinnerAddDialog.NoticeDialogListener {
+        implements SpinnerAddDialog.NoticeDialogListener,
+        DoubleAddDialog.NoticeDialogListener {
 
     private VatList m_vatList;
+
     private Group m_carte = new Group( "Carte", new Vat( "global", 0.0 ) );
+    private Queue<Group> m_previousGroups = new ArrayDeque<>();
+
     private CarteAdapter m_carteAdapter;
+    private GridView m_gridView;
 
     private Boolean m_isFabOpen = false;
 
@@ -96,7 +105,7 @@ public class CarteActivity extends AppCompatActivity
             @Override
             public void onClick( View view ) {
                 animateflocationBtn();
-                DialogFragment addDishDialog = SimpleAddDialog.newInstance( R.string.add_dish_dialog_title, R.string.add_dish_dialog_message );
+                DialogFragment addDishDialog = DoubleAddDialog.newInstance( R.string.add_dish_dialog_title, R.string.add_dish_dialog_message, R.string.add_dish_price_dialog_message );
                 addDishDialog.show( getFragmentManager(), CARTE_DISH );
             }
         } );
@@ -109,17 +118,21 @@ public class CarteActivity extends AppCompatActivity
         m_carteAdapter = new CarteAdapter(this,
                 android.R.layout.simple_list_item_1, m_carte.getItems() );
 
-        GridView gridView = findViewById( R.id.carte_grid );
-        gridView.setAdapter( m_carteAdapter );
-        /*gridView.setOnItemClickListener( new AdapterView.OnItemClickListener() {
+        m_gridView = findViewById( R.id.carte_grid );
+        m_gridView.setAdapter( m_carteAdapter );
+        m_gridView.setOnItemClickListener( new AdapterView.OnItemClickListener() {
 
             @Override
             public void onItemClick( AdapterView<?> parent, View view, int position, long id ) {
-                Intent intent = new Intent( MainActivity.this, TableActivity.class );
-                intent.putExtra( TABLE, m_tableList.getTable( position ) );
-                MainActivity.this.startActivityForResult( intent, REQ_TABLE );
+                if( m_carte.getItem( position ) instanceof Group ) {
+                    m_previousGroups.add( m_carte );
+                    m_carte = ( Group ) m_carte.getItem( position );
+                    m_carteAdapter = new CarteAdapter( view.getContext(), android.R.layout.simple_list_item_1, m_carte.getItems() );
+                    m_gridView.setAdapter( m_carteAdapter );
+                    m_carteAdapter.notifyDataSetChanged();
+                }
             }
-        } );*/
+        } );
     }
 
     @Override
@@ -132,9 +145,20 @@ public class CarteActivity extends AppCompatActivity
             Vat vat = m_vatList.getVat( newSpinner.getSelectedItemPosition() );
             m_carte.addGroup( newEdt.getText().toString(), vat );
         } else {
-            m_carte.addDish( newEdt.getText().toString(), 15.0 );
+            EditText newEdtc = dialog.getDialog().findViewById( R.id.edit_decimal );
+            m_carte.addDish( newEdt.getText().toString(), Double.valueOf( newEdtc.getText().toString() ) );
         }
 
         m_carteAdapter.notifyDataSetChanged();
+    }
+
+    @Override
+    public void onBackPressed() {
+        if( m_previousGroups.size() != 0 ) {
+            m_carte =  m_previousGroups.poll();
+            m_carteAdapter = new CarteAdapter( this, android.R.layout.simple_list_item_1, m_carte.getItems() );
+            m_gridView.setAdapter( m_carteAdapter );
+            m_carteAdapter.notifyDataSetChanged();
+        }
     }
 }

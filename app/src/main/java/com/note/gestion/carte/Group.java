@@ -18,5 +18,7 @@ public class Group extends Item {
     public void addDish( String designation, Double price ) { m_items.add( new Dish( designation, price, m_vat ) ); }
 
     public List<Item> getItems() { return m_items; }
-
+    public Item getItem( int position ) {
+        return m_items.get( position );
+    }
 }
