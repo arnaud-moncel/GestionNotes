@@ -2,11 +2,13 @@ package com.note.gestion.carte;
 
 import android.app.Activity;
 import android.content.Context;
-import android.graphics.Color;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.ImageView;
 import android.widget.TextView;
+
+import com.note.gestion.gestionnotes.R;
 
 import java.util.List;
 
@@ -33,12 +35,13 @@ public class CarteAdapter extends ArrayAdapter<Item> {
         }
 
         Item item = m_items.get( position );
-        TextView txtView = convertView.findViewById( android.R.id.text1 );
+        TextView txtView = convertView.findViewById( R.id.text_view );
         txtView.setText( item.getDesignation() );
         if( item instanceof Group ) {
-            txtView.setBackgroundColor( Color.DKGRAY );
+            convertView.findViewById( R.id.grid_item ).setBackgroundResource( R.drawable.group_background );
+            ((ImageView) convertView.findViewById( R.id.img_view )).setImageResource( R.drawable.ic_group );
         } else {
-            txtView.setBackgroundColor( Color.GRAY );
+            convertView.findViewById( R.id.grid_item ).setBackgroundResource( R.drawable.dish_background );
         }
 
         return convertView;

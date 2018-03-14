@@ -34,7 +34,7 @@
         android:tint="@android:color/background_light"
         app:backgroundTint="#009688"
         app:pressedTranslationZ="12dp"
-        android:src="@drawable/ic_dishes" />
+        android:src="@drawable/ic_group" />
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/fab_add_item"
@@ -47,7 +47,7 @@
         android:tint="@android:color/background_light"
         app:backgroundTint="#009688"
         app:pressedTranslationZ="12dp"
-        android:src="@drawable/ic_plate" />
+        android:src="@drawable/ic_dish" />
 
 
     <android.support.design.widget.FloatingActionButton

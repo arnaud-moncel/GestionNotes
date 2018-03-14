@@ -12,10 +12,9 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:gravity="center"
-        android:columnWidth="100dp"
-        android:numColumns="auto_fit"
-        android:verticalSpacing="24dp"
-        android:horizontalSpacing="10dp"
+        android:columnWidth="175dp"
+        android:verticalSpacing="@dimen/fab_margin"
+        android:numColumns="2"
         android:stretchMode="spacingWidthUniform"
         android:id="@+id/carte_grid"/>
 

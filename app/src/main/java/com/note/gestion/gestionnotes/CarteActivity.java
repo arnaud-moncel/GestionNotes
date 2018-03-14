@@ -125,7 +125,7 @@ public class CarteActivity extends AppCompatActivity
         m_animRotBack = AnimationUtils.loadAnimation( getApplicationContext(),R.anim.rotate_backward );
 
         m_carteAdapter = new CarteAdapter(this,
-                android.R.layout.simple_list_item_1, m_carte.getItems() );
+                R.layout.grid_view_carte, m_carte.getItems() );
 
         m_gridView = findViewById( R.id.carte_grid );
         m_gridView.setAdapter( m_carteAdapter );
@@ -136,7 +136,7 @@ public class CarteActivity extends AppCompatActivity
                 if( m_carte.getItem( position ) instanceof Group ) {
                     m_previousGroups.push( m_carte );
                     m_carte = ( Group ) m_carte.getItem( position );
-                    m_carteAdapter = new CarteAdapter( view.getContext(), android.R.layout.simple_list_item_1, m_carte.getItems() );
+                    m_carteAdapter = new CarteAdapter( view.getContext(), R.layout.grid_view_carte, m_carte.getItems() );
                     m_gridView.setAdapter( m_carteAdapter );
                     m_carteAdapter.notifyDataSetChanged();
                 }
@@ -165,7 +165,7 @@ public class CarteActivity extends AppCompatActivity
     public void onBackPressed() {
         if( m_previousGroups.size() != 0 ) {
             m_carte =  m_previousGroups.pop();
-            m_carteAdapter = new CarteAdapter( this, android.R.layout.simple_list_item_1, m_carte.getItems() );
+            m_carteAdapter = new CarteAdapter( this, R.layout.grid_view_carte, m_carte.getItems() );
             m_gridView.setAdapter( m_carteAdapter );
             m_carteAdapter.notifyDataSetChanged();
         } else {
