@@ -17,9 +17,11 @@ import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ListView;
 
+import com.note.gestion.carte.Group;
 import com.note.gestion.table.Table;
 import com.note.gestion.table.TableList;
 import com.note.gestion.table.TableListAdapter;
+import com.note.gestion.vat.Vat;
 import com.note.gestion.vat.VatList;
 
 import java.io.FileInputStream;
@@ -38,6 +40,7 @@ public class MainActivity extends AppCompatActivity
     private TableListAdapter m_tableListAdpter;
 
     private VatList m_vatList;
+    private Group m_carte;
 
     public static final String TABLE = "com.note.gestion.TABLE";
     public static final String CARTE = "com.note.gestion.CARTE";
@@ -82,6 +85,12 @@ public class MainActivity extends AppCompatActivity
         if( m_tableList == null ) {
             m_tableList = new TableList();
         }
+
+        //recuperation de la carte
+        m_carte = loadFile( CARTE_FILE_NAME );
+        if( m_carte == null ) {
+            m_carte =  new Group( "Carte", new Vat( "global", 0.0 ) );
+        }
     }
 
     private void saveFile( String fileName, Serializable item ) {
@@ -104,6 +113,9 @@ public class MainActivity extends AppCompatActivity
 
         //sauvegarde des tables
         saveFile( TABLE_FILE_NAME, m_tableList );
+
+        //sauvegarde de la carte
+        saveFile( CARTE_FILE_NAME, m_carte );
     }
 
     @Override
@@ -170,6 +182,7 @@ public class MainActivity extends AppCompatActivity
         if ( id == R.id.nav_carte ) {
             Intent intent = new Intent( MainActivity.this, CarteActivity.class );
             intent.putExtra( VAT, m_vatList );
+            intent.putExtra( CARTE, m_carte );
             MainActivity.this.startActivityForResult( intent, REQ_CARTE );
         } else if ( id == R.id.nav_VAT ) {
             Intent intent = new Intent( MainActivity.this, VatActivity.class );
@@ -190,6 +203,7 @@ public class MainActivity extends AppCompatActivity
                 break;
 
             case REQ_CARTE:
+                m_carte = ( Group ) data.getSerializableExtra( CARTE );
                 break;
 
             case REQ_VAT:

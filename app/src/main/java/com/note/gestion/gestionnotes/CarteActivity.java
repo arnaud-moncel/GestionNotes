@@ -1,10 +1,14 @@
 package com.note.gestion.gestionnotes;
 
+import android.app.Activity;
 import android.app.DialogFragment;
+import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
@@ -18,8 +22,12 @@ import com.note.gestion.carte.Group;
 import com.note.gestion.vat.Vat;
 import com.note.gestion.vat.VatList;
 
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.util.ArrayDeque;
-import java.util.Queue;
+import java.util.Deque;
 
 
 public class CarteActivity extends AppCompatActivity
@@ -28,8 +36,8 @@ public class CarteActivity extends AppCompatActivity
 
     private VatList m_vatList;
 
-    private Group m_carte = new Group( "Carte", new Vat( "global", 0.0 ) );
-    private Queue<Group> m_previousGroups = new ArrayDeque<>();
+    private Group m_carte;
+    private Deque<Group> m_previousGroups = new ArrayDeque<>();
 
     private CarteAdapter m_carteAdapter;
     private GridView m_gridView;
@@ -76,6 +84,7 @@ public class CarteActivity extends AppCompatActivity
         getSupportActionBar().setDisplayHomeAsUpEnabled( true );
 
         m_vatList = (VatList) getIntent().getSerializableExtra( MainActivity.VAT );
+        m_carte = ( Group ) getIntent().getSerializableExtra( MainActivity.CARTE );
 
         m_fab = findViewById( R.id.fab );
         m_fab.setOnClickListener( new View.OnClickListener() {
@@ -125,7 +134,7 @@ public class CarteActivity extends AppCompatActivity
             @Override
             public void onItemClick( AdapterView<?> parent, View view, int position, long id ) {
                 if( m_carte.getItem( position ) instanceof Group ) {
-                    m_previousGroups.add( m_carte );
+                    m_previousGroups.push( m_carte );
                     m_carte = ( Group ) m_carte.getItem( position );
                     m_carteAdapter = new CarteAdapter( view.getContext(), android.R.layout.simple_list_item_1, m_carte.getItems() );
                     m_gridView.setAdapter( m_carteAdapter );
@@ -155,10 +164,56 @@ public class CarteActivity extends AppCompatActivity
     @Override
     public void onBackPressed() {
         if( m_previousGroups.size() != 0 ) {
-            m_carte =  m_previousGroups.poll();
+            m_carte =  m_previousGroups.pop();
             m_carteAdapter = new CarteAdapter( this, android.R.layout.simple_list_item_1, m_carte.getItems() );
             m_gridView.setAdapter( m_carteAdapter );
             m_carteAdapter.notifyDataSetChanged();
+        } else {
+            sendIntent();
+        }
+    }
+
+    private void sendIntent() {
+        Intent intent = new Intent();
+        intent.putExtra( MainActivity.CARTE, m_carte );
+        setResult( Activity.RESULT_OK, intent );
+        finish();
+    }
+
+    @Override
+    public boolean onOptionsItemSelected( MenuItem item ) {
+        switch ( item.getItemId() ) {
+            // Respond to the action bar's Up/Home button
+            case android.R.id.home:
+                //get the main group
+                while ( !m_previousGroups.isEmpty() ) {
+                    m_carte = m_previousGroups.pop();
+                }
+                sendIntent();
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+
+        //get the main group
+        while ( !m_previousGroups.isEmpty() ) {
+            m_carte = m_previousGroups.pop();
+        }
+
+        try {
+            FileOutputStream fos = openFileOutput( MainActivity.CARTE_FILE_NAME, Context.MODE_PRIVATE );
+            ObjectOutputStream os = new ObjectOutputStream( fos );
+            os.writeObject( m_carte );
+            os.close();
+            fos.close();
+        } catch ( FileNotFoundException e ) {
+            e.printStackTrace();
+        } catch ( IOException e ) {
+            e.printStackTrace();
         }
     }
 }

@@ -2,6 +2,7 @@ package com.note.gestion.carte;
 
 import com.note.gestion.vat.Vat;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -9,7 +10,7 @@ import java.util.List;
  * Created by Arnaud Moncel on 08/03/2018.
  */
 
-public class Group extends Item {
+public class Group extends Item implements Serializable{
     private List<Item> m_items = new ArrayList<>();
 
     public Group(String designation, Vat vat) { super( designation, vat ); }
