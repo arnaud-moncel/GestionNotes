@@ -14,7 +14,7 @@
         android:gravity="center"
         android:columnWidth="175dp"
         android:verticalSpacing="@dimen/fab_margin"
-        android:numColumns="2"
+        android:numColumns="auto_fit"
         android:stretchMode="spacingWidthUniform"
         android:id="@+id/carte_grid"/>
 

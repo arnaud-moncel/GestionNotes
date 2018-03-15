@@ -42,6 +42,7 @@ public class CarteAdapter extends ArrayAdapter<Item> {
             ((ImageView) convertView.findViewById( R.id.img_view )).setImageResource( R.drawable.ic_group );
         } else {
             convertView.findViewById( R.id.grid_item ).setBackgroundResource( R.drawable.dish_background );
+            ((ImageView) convertView.findViewById( R.id.img_view )).setImageResource( 0 );
         }
 
         return convertView;
