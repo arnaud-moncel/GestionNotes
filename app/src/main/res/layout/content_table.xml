@@ -1,11 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context="com.note.gestion.gestionnotes.TableActivity"
-    tools:showIn="@layout/activity_table">
+    tools:showIn="@layout/activity_table"
+    android:weightSum="2"
+    android:orientation="vertical">
 
-</android.support.constraint.ConstraintLayout>
+    <ListView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:id="@+id/dish_list"/>
+
+    <GridView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:gravity="center"
+        android:columnWidth="175dp"
+        android:verticalSpacing="@dimen/fab_margin"
+        android:numColumns="auto_fit"
+        android:stretchMode="spacingWidthUniform"
+        android:layout_weight="1"
+        android:id="@+id/carte_grid"/>
+
+</LinearLayout>

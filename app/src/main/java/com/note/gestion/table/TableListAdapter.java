@@ -12,7 +12,7 @@ import com.note.gestion.gestionnotes.R;
 import java.util.List;
 
 /**
- * Created by MSI on 20/02/2018.
+ * Created by Arnaud Moncel on 20/02/2018.
  */
 
 public class TableListAdapter extends ArrayAdapter<Table> {
