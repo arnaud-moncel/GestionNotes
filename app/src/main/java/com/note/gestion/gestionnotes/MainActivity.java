@@ -1,6 +1,7 @@
 package com.note.gestion.gestionnotes;
 
 import android.app.DialogFragment;
+import android.arch.persistence.room.Room;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -17,12 +18,9 @@ import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ListView;
 
-import com.note.gestion.carte.Group;
 import com.note.gestion.table.Table;
 import com.note.gestion.table.TableList;
 import com.note.gestion.table.TableListAdapter;
-import com.note.gestion.vat.Vat;
-import com.note.gestion.vat.VatList;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -35,24 +33,18 @@ import java.io.Serializable;
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,
         SimpleAddDialog.NoticeDialogListener {
+    private AppDatabase m_dataBase;
 
     private TableList m_tableList;
     private TableListAdapter m_tableListAdpter;
-
-    private VatList m_vatList;
-    private Group m_carte;
 
     public static final String TABLE = "com.note.gestion.TABLE";
     public static final String CARTE = "com.note.gestion.CARTE";
     public static final String VAT = "com.note.gestion.VAT";
 
     public static final String TABLE_FILE_NAME = "tables";
-    public static final String CARTE_FILE_NAME = "carte";
-    public static final String VAT_FILE_NAME = "vats";
 
     public static final int REQ_TABLE = 1;
-    public static final int REQ_CARTE = 2;
-    public static final int REQ_VAT = 3;
 
     private <T> T loadFile( String fileName ) {
         T item = null;
@@ -74,22 +66,10 @@ public class MainActivity extends AppCompatActivity
     }
     
     private void loadFiles() {
-        //recuperation des groups de TVA
-        m_vatList = loadFile( VAT_FILE_NAME );
-        if( m_vatList == null ) {
-            m_vatList = new VatList();
-        }
-
         //recuperation des tables
         m_tableList = loadFile( TABLE_FILE_NAME );
         if( m_tableList == null ) {
             m_tableList = new TableList();
-        }
-
-        //recuperation de la carte
-        m_carte = loadFile( CARTE_FILE_NAME );
-        if( m_carte == null ) {
-            m_carte =  new Group( "Carte", new Vat( "global", 0.0 ) );
         }
     }
 
@@ -108,14 +88,8 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void saveFiles() {
-        //sauvegarde des groupes de TVA
-        saveFile( VAT_FILE_NAME, m_vatList );
-
         //sauvegarde des tables
         saveFile( TABLE_FILE_NAME, m_tableList );
-
-        //sauvegarde de la carte
-        saveFile( CARTE_FILE_NAME, m_carte );
     }
 
     @Override
@@ -124,6 +98,8 @@ public class MainActivity extends AppCompatActivity
         setContentView( R.layout.activity_main );
         Toolbar toolbar = findViewById( R.id.toolbar );
         setSupportActionBar( toolbar );
+
+        m_dataBase = Room.databaseBuilder( getApplicationContext(), AppDatabase.class, "gestion-note").build();
 
         FloatingActionButton fab = findViewById( R.id.fab );
         fab.setOnClickListener( new View.OnClickListener() {
@@ -158,7 +134,6 @@ public class MainActivity extends AppCompatActivity
             public void onItemClick( AdapterView<?> parent, View view, int position, long id ) {
                 Intent intent = new Intent( MainActivity.this, TableActivity.class );
                 intent.putExtra( TABLE, m_tableList.getTable( position ) );
-                intent.putExtra( CARTE, m_carte );
                 MainActivity.this.startActivityForResult( intent, REQ_TABLE );
             }
         } );
@@ -181,14 +156,9 @@ public class MainActivity extends AppCompatActivity
         int id = item.getItemId();
 
         if ( id == R.id.nav_carte ) {
-            Intent intent = new Intent( MainActivity.this, CarteActivity.class );
-            intent.putExtra( VAT, m_vatList );
-            intent.putExtra( CARTE, m_carte );
-            MainActivity.this.startActivityForResult( intent, REQ_CARTE );
+            MainActivity.this.startActivity( new Intent( MainActivity.this, CarteActivity.class ) );
         } else if ( id == R.id.nav_VAT ) {
-            Intent intent = new Intent( MainActivity.this, VatActivity.class );
-            intent.putExtra( VAT, m_vatList );
-            MainActivity.this.startActivityForResult( intent, REQ_VAT );
+            MainActivity.this.startActivity( new Intent( MainActivity.this, VatActivity.class ) );
         }
 
         DrawerLayout drawer = findViewById( R.id.drawer_layout );
@@ -201,14 +171,6 @@ public class MainActivity extends AppCompatActivity
         switch ( requestCode ) {
             case REQ_TABLE:
                 m_tableList.seTable( ( Table ) data.getSerializableExtra( TABLE ) );
-                break;
-
-            case REQ_CARTE:
-                m_carte = ( Group ) data.getSerializableExtra( CARTE );
-                break;
-
-            case REQ_VAT:
-                m_vatList = ( VatList ) data.getSerializableExtra( VAT );
                 break;
         }
     }
