@@ -37,7 +37,7 @@ public class VatActivity extends AppCompatActivity
 
         getSupportActionBar().setDisplayHomeAsUpEnabled( true );
 
-        m_dataBase = Room.databaseBuilder( getApplicationContext(), AppDatabase.class, "gestion-note").build();
+        m_dataBase = AppDatabase.getInstance( getApplicationContext() );
 
         FloatingActionButton fab = findViewById( R.id.fab );
         fab.setOnClickListener( new View.OnClickListener() {

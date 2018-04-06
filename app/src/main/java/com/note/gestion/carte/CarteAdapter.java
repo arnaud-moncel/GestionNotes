@@ -16,8 +16,9 @@ import java.util.List;
  * Created by Arnaud Moncel on 08/03/2018.
  */
 
-public class CarteAdapter extends ArrayAdapter<Item> {
-    private List<Item> m_items;
+/*public class CarteAdapter extends ArrayAdapter<Item> {
+    private List<Group> m_groups;
+    private List<Dish> m_dishes
     private Context m_context;
     private int m_layoutResourceId;
 
@@ -47,4 +48,4 @@ public class CarteAdapter extends ArrayAdapter<Item> {
 
         return convertView;
     }
-}
+}*/

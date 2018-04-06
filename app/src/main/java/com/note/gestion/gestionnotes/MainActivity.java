@@ -99,7 +99,7 @@ public class MainActivity extends AppCompatActivity
         Toolbar toolbar = findViewById( R.id.toolbar );
         setSupportActionBar( toolbar );
 
-        m_dataBase = Room.databaseBuilder( getApplicationContext(), AppDatabase.class, "gestion-note").build();
+        m_dataBase = AppDatabase.getInstance( getApplicationContext() );
 
         FloatingActionButton fab = findViewById( R.id.fab );
         fab.setOnClickListener( new View.OnClickListener() {

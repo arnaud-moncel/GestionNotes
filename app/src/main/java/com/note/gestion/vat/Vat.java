@@ -16,10 +16,10 @@ import lombok.Setter;
 @Setter
 public class Vat {
     @PrimaryKey( autoGenerate = true )
-    @ColumnInfo( name = "vat_id" )
+    @ColumnInfo( name = "id" )
     private int m_id;
 
-    @ColumnInfo( name = "vat_designation" )
+    @ColumnInfo( name = "designation" )
     private String m_designation;
 
     @ColumnInfo( name = "percent" )

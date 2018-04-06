@@ -11,7 +11,6 @@ import android.widget.AdapterView;
 import android.widget.GridView;
 import android.widget.ListView;
 
-import com.note.gestion.carte.CarteAdapter;
 import com.note.gestion.carte.Dish;
 import com.note.gestion.carte.Group;
 import com.note.gestion.table.Table;
@@ -29,7 +28,7 @@ public class TableActivity extends AppCompatActivity {
     private Group m_carte;
     private Deque<Group> m_previousGroups = new ArrayDeque<>();
 
-    private CarteAdapter m_carteAdapter;
+    //private CarteAdapter m_carteAdapter;
     private GridView m_gridView;
 
     @Override
@@ -53,7 +52,7 @@ public class TableActivity extends AppCompatActivity {
         listView.setAdapter( m_tableAdapter );
 
         m_carte = ( Group ) getIntent().getSerializableExtra( MainActivity.CARTE );
-        m_carteAdapter = new CarteAdapter(this,
+        /*m_carteAdapter = new CarteAdapter(this,
                 R.layout.grid_view_item_carte, m_carte.getItems() );
 
         m_gridView = findViewById( R.id.carte_grid );
@@ -73,7 +72,7 @@ public class TableActivity extends AppCompatActivity {
                     m_tableAdapter.notifyDataSetChanged();
                 }
             }
-        } );
+        } );*/
     }
 
     private void sendIntent() {
@@ -97,10 +96,10 @@ public class TableActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         if( m_previousGroups.size() != 0 ) {
-            m_carte =  m_previousGroups.pop();
+            /*m_carte =  m_previousGroups.pop();
             m_carteAdapter = new CarteAdapter( this, R.layout.grid_view_item_carte, m_carte.getItems() );
             m_gridView.setAdapter( m_carteAdapter );
-            m_carteAdapter.notifyDataSetChanged();
+            m_carteAdapter.notifyDataSetChanged();*/
         } else {
             sendIntent();
         }

@@ -1,13 +1,13 @@
 package com.note.gestion.carte;
 
+import android.arch.persistence.room.ColumnInfo;
+import android.arch.persistence.room.Embedded;
 import android.arch.persistence.room.Entity;
+import android.arch.persistence.room.ForeignKey;
 import android.arch.persistence.room.Ignore;
-import android.arch.persistence.room.Relation;
+import android.arch.persistence.room.PrimaryKey;
 
 import com.note.gestion.vat.Vat;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -24,49 +24,54 @@ import lombok.Setter;
 @Entity
 @Getter
 @Setter
-public class Group extends Item {
-    /*@PrimaryKey( autoGenerate = true )
+public class Group {
+    @PrimaryKey( autoGenerate = true )
     @ColumnInfo( name = "id" )
-    private int m_id;*/
+    private int m_id;
 
-    @Relation( entity = Dish.class, parentColumn = "item_id", entityColumn = "item_id" )
-    private List<Dish> m_dishes;
+    @ColumnInfo( name = "designation" )
+    private String m_designation;
 
-    //@Relation( entity = Group.class, parentColumn = "item_id", entityColumn = "item_id" )
+    @ColumnInfo( name = "vat_id" )
+    private int m_vatId;
+
     @Ignore
-    private List<Group> m_groups;
+    private Vat m_vat;
 
-    @Ignore
-    private List<Item> m_items;
+    @ColumnInfo( name = "parent_id" )
+    private int m_parentGroupId;
 
     public Group() {}
-    public Group(String designation, Vat vat) {
-        super( designation, vat );
-        m_dishes = new ArrayList<>();
-        m_groups = new ArrayList<>();
-        m_items = new ArrayList<>();
+    public Group( String designation ) {
+        m_designation = designation;
+    }
+    public Group( String designation, int vatId, int parentGroupId ) {
+        m_designation = designation;
+        m_vatId = vatId;
+        m_parentGroupId = parentGroupId;
+    }
+    public Group( String designation, Vat vat, int parentGroupId ) {
+        m_designation = designation;
+        m_vatId = vat.getId();
+        m_vat = vat;
+        m_parentGroupId = parentGroupId;
     }
 
-    public void addGroup( String designation, Vat vat ) { m_groups.add( new Group( designation, vat ) ); }
-    public void addDish( String designation, Double price ) { m_dishes.add( new Dish( designation, price, m_vat ) ); }
+    /*
+    *   GETTER
+    */
+    public int getId() { return m_id; }
+    public String getDesignation() { return m_designation; }
+    public int getVatId() { return m_vatId; }
+    public Vat getVat() { return m_vat; }
+    public int getParentGroupId() { return m_parentGroupId; }
 
-    public List<Item> getItems() {
-        m_items.clear();
-        m_items.addAll( m_groups );
-        m_items.addAll( m_dishes );
-        return m_items;
-    }
-    public Item getItem( int position ) {
-        if( m_groups.size() > position ) {
-            return m_groups.get( position );
-        } else {
-            return m_dishes.get( position );
-        }
-    }
-
-    public List<Group> getGroups() { return m_groups; }
-    public List<Dish> getDishes() { return m_dishes; }
-
-    public void setGroups( List<Group> groups ) { m_groups = groups; }
-    public void setDishes( List<Dish> dishes ) { m_dishes = dishes; }
+    /*
+    *   SETTER
+    */
+    public void setId( int id ) { m_id = id; }
+    public void setDesignation( String designation ) { m_designation = designation; }
+    public void setVatId( int vatId ) { m_vatId = vatId; }
+    public void setVat( Vat vat ) { m_vat = vat; }
+    public void setParentGroupId( int parentGroupId ) { m_parentGroupId = parentGroupId; }
 }
