@@ -1,16 +1,8 @@
 package com.note.gestion.table;
 
 import android.arch.persistence.room.ColumnInfo;
-import android.arch.persistence.room.Embedded;
 import android.arch.persistence.room.Entity;
-import android.arch.persistence.room.ForeignKey;
 import android.arch.persistence.room.PrimaryKey;
-
-import com.note.gestion.carte.Dish;
-
-import java.io.Serializable;
-import java.util.HashMap;
-import java.util.Map;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -22,33 +14,32 @@ import lombok.Setter;
 @Entity
 @Getter
 @Setter
-public class Table implements Serializable {
+public class Table {
     @PrimaryKey( autoGenerate = true )
     @ColumnInfo( name = "id" )
-    private String m_id;
+    private int m_id;
 
-    @Embedded
-    private Map<Dish, Integer> m_dishes;
+    @ColumnInfo( name = "designation" )
+    private String m_designation;
 
     public Table() {}
-
-    public Table( String num ) {
-        m_id = num;
-        m_dishes = new HashMap<>();
+    public Table( int id, String designation ) {
+        m_id = id;
+        m_designation = designation;
+    }
+    public Table( String designation ) {
+        m_designation = designation;
     }
 
-    public String getId() { return m_id; }
-    public Map<Dish, Integer> getDishes() { return m_dishes; }
+    /**
+     *   GETTER
+     */
+    public int getId() { return m_id; }
+    public String getDesignation() { return m_designation; }
 
-    public void setId( String id ) { m_id = id; }
-    public void setDishes( Map<Dish, Integer> dishes ) { m_dishes = dishes; }
-
-    public void addDish( Dish dish ) {
-        Integer dishCount = m_dishes.get( dish );
-        if( dishCount == null ) {
-            m_dishes.put( dish, 1 );
-        } else {
-            m_dishes.put( dish, dishCount + 1);
-        }
-    }
+    /**
+     * SETTER
+     */
+    public void setId( int id ) { m_id = id; }
+    public void setDesignation( String designation ) { m_designation = designation; }
 }

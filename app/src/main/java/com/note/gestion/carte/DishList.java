@@ -1,7 +1,5 @@
 package com.note.gestion.carte;
 
-import com.note.gestion.vat.Vat;
-
 import java.util.List;
 
 /**
@@ -9,18 +7,18 @@ import java.util.List;
  */
 
 public class DishList {
-    /*private int m_groupParentId;
+    private Group m_group;
 
-    private List<Group> m_groups;
+    private List<Dish> m_dishes;
 
-    public DishList(int groupParentId ) { m_groupParentId = groupParentId; }
-    public DishList(int groupParentId, List<Group> groups ) {
-        m_groupParentId = groupParentId;
-        m_groups = groups;
+    public DishList( Group group ) { m_group = group; }
+    public DishList( Group group, List<Dish> dishes ) {
+        m_group = group;
+        m_dishes = dishes;
     }
 
-    public void createGroup( String des, Vat vat ) { m_groups.add( new Group( des, vat, m_groupParentId ) ); }
+    public void createDish( String designation, Double price ) { m_dishes.add( new Dish( designation, price, m_group.getVat(), m_group.getId() ) ); }
 
-    public List<Group> getGroups() { return m_groups; }
-    public Group getGroup( int position ) { return m_groups.get( position ); }*/
+    public List<Dish> getDishes() { return m_dishes; }
+    public Dish getDish( int position ) { return m_dishes.get( position ); }
 }

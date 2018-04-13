@@ -16,6 +16,10 @@ public interface GroupDAO {
     @Query( "Select * from `Group` where parent_id=:groupParentId" )
     List<Group> getAllByParentGroup( int groupParentId );
 
+    @Query( "Select * from `Group` where id=:id" )
+    Group getById( int id );
+
+
     @Insert( onConflict = OnConflictStrategy.REPLACE )
     void insertAll( List<Group> groups );
 

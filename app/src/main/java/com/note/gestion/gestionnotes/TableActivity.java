@@ -11,10 +11,14 @@ import android.widget.AdapterView;
 import android.widget.GridView;
 import android.widget.ListView;
 
+import com.note.gestion.carte.CarteAdapter;
 import com.note.gestion.carte.Dish;
+import com.note.gestion.carte.DishList;
 import com.note.gestion.carte.Group;
+import com.note.gestion.carte.GroupList;
 import com.note.gestion.table.Table;
 import com.note.gestion.table.TableAdapter;
+import com.note.gestion.vat.VatList;
 
 import java.util.ArrayDeque;
 import java.util.Deque;
@@ -25,10 +29,14 @@ public class TableActivity extends AppCompatActivity {
 
     private TableAdapter m_tableAdapter;
 
-    private Group m_carte;
+    private VatList m_vatList;
+
+    private Group m_currentGroup;
+    private GroupList m_groupList;
+    private DishList m_dishList;
     private Deque<Group> m_previousGroups = new ArrayDeque<>();
 
-    //private CarteAdapter m_carteAdapter;
+    private CarteAdapter m_carteAdapter;
     private GridView m_gridView;
 
     @Override
@@ -40,18 +48,21 @@ public class TableActivity extends AppCompatActivity {
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        Intent intent = getIntent();
-        m_table = (Table) intent.getSerializableExtra( MainActivity.TABLE );
-        setTitle( getTitle() + " " + m_table.getId() );
+        //TODO changer la recuperation de l'intent avec les DAOs
+        //  Creer une table d'association pour lier les dish avec la table
 
-        m_tableAdapter = new TableAdapter(this,
+        Intent intent = getIntent();
+        //m_table = intent.getIntExtra( MainActivity.TABLE );
+        //setTitle( getTitle() + " " + m_table.getId() );
+
+        /*m_tableAdapter = new TableAdapter(this,
                 android.R.layout.simple_list_item_2, m_table.getDishes() );
 
         //ListView pour les tables
         ListView listView = findViewById( R.id.dish_list );
-        listView.setAdapter( m_tableAdapter );
+        listView.setAdapter( m_tableAdapter );*/
 
-        m_carte = ( Group ) getIntent().getSerializableExtra( MainActivity.CARTE );
+        //m_carte = ( Group ) getIntent().getSerializableExtra( MainActivity.CARTE );
         /*m_carteAdapter = new CarteAdapter(this,
                 R.layout.grid_view_item_carte, m_carte.getItems() );
 
@@ -75,19 +86,12 @@ public class TableActivity extends AppCompatActivity {
         } );*/
     }
 
-    private void sendIntent() {
-        Intent intent = new Intent();
-        intent.putExtra( MainActivity.TABLE, m_table );
-        setResult( Activity.RESULT_OK, intent );
-        finish();
-    }
-
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             // Respond to the action bar's Up/Home button
             case android.R.id.home:
-                sendIntent();
+                finish();
                 return true;
         }
         return super.onOptionsItemSelected(item);
@@ -101,7 +105,7 @@ public class TableActivity extends AppCompatActivity {
             m_gridView.setAdapter( m_carteAdapter );
             m_carteAdapter.notifyDataSetChanged();*/
         } else {
-            sendIntent();
+            finish();
         }
     }
 }

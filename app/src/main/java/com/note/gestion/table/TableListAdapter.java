@@ -34,7 +34,7 @@ public class TableListAdapter extends ArrayAdapter<Table> {
         }
 
         ( ( TextView ) convertView.findViewById(android.R.id.text1)).setText( m_context.getString( R.string.table_item ) );
-        ( ( TextView ) convertView.findViewById(android.R.id.text2)).setText( m_tables.get( position ).getId() );
+        ( ( TextView ) convertView.findViewById(android.R.id.text2)).setText( m_tables.get( position ).getDesignation() );
 
         return convertView;
     }

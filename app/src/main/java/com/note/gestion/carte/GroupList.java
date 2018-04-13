@@ -2,7 +2,6 @@ package com.note.gestion.carte;
 
 import com.note.gestion.vat.Vat;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**

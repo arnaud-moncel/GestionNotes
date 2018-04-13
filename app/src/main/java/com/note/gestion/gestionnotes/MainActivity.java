@@ -1,9 +1,8 @@
 package com.note.gestion.gestionnotes;
 
 import android.app.DialogFragment;
-import android.arch.persistence.room.Room;
-import android.content.Context;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.view.View;
@@ -18,17 +17,8 @@ import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ListView;
 
-import com.note.gestion.table.Table;
 import com.note.gestion.table.TableList;
 import com.note.gestion.table.TableListAdapter;
-
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.Serializable;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,
@@ -39,58 +29,6 @@ public class MainActivity extends AppCompatActivity
     private TableListAdapter m_tableListAdpter;
 
     public static final String TABLE = "com.note.gestion.TABLE";
-    public static final String CARTE = "com.note.gestion.CARTE";
-    public static final String VAT = "com.note.gestion.VAT";
-
-    public static final String TABLE_FILE_NAME = "tables";
-
-    public static final int REQ_TABLE = 1;
-
-    private <T> T loadFile( String fileName ) {
-        T item = null;
-        try {
-            FileInputStream fis = openFileInput( fileName );
-            ObjectInputStream is = new ObjectInputStream( fis );
-            item = ( T ) is.readObject();
-            is.close();
-            fis.close();
-        } catch ( FileNotFoundException e ) {
-            e.printStackTrace();
-        } catch ( IOException e ) {
-            e.printStackTrace();
-        } catch ( ClassNotFoundException e ) {
-            e.printStackTrace();
-        }
-        
-        return item;
-    }
-    
-    private void loadFiles() {
-        //recuperation des tables
-        m_tableList = loadFile( TABLE_FILE_NAME );
-        if( m_tableList == null ) {
-            m_tableList = new TableList();
-        }
-    }
-
-    private void saveFile( String fileName, Serializable item ) {
-        try {
-            FileOutputStream fos = openFileOutput( fileName, Context.MODE_PRIVATE );
-            ObjectOutputStream os = new ObjectOutputStream( fos );
-            os.writeObject( item );
-            os.close();
-            fos.close();
-        } catch ( FileNotFoundException e ) {
-            e.printStackTrace();
-        } catch ( IOException e ) {
-            e.printStackTrace();
-        }
-    }
-
-    private void saveFiles() {
-        //sauvegarde des tables
-        saveFile( TABLE_FILE_NAME, m_tableList );
-    }
 
     @Override
     protected void onCreate( Bundle savedInstanceState ) {
@@ -119,24 +57,32 @@ public class MainActivity extends AppCompatActivity
         NavigationView navigationView = findViewById( R.id.nav_view );
         navigationView.setNavigationItemSelectedListener( this );
 
-        //recuperation des fichiers sauvegardés
-        loadFiles();
-
-        m_tableListAdpter = new TableListAdapter(this,
-                android.R.layout.simple_list_item_2, m_tableList.getTables() );
-
-        //ListView pour les tables
-        ListView listView = findViewById( R.id.table_list );
-        listView.setAdapter( m_tableListAdpter );
-        listView.setOnItemClickListener( new AdapterView.OnItemClickListener() {
+        new AsyncTask<Void, Void, Integer>() {
+            @Override
+            protected Integer doInBackground(Void... voids) {
+                m_tableList = new TableList( m_dataBase.tableDAO().getAll() );
+                return null;
+            }
 
             @Override
-            public void onItemClick( AdapterView<?> parent, View view, int position, long id ) {
-                Intent intent = new Intent( MainActivity.this, TableActivity.class );
-                intent.putExtra( TABLE, m_tableList.getTable( position ) );
-                MainActivity.this.startActivityForResult( intent, REQ_TABLE );
+            protected void onPostExecute(Integer result) {
+                m_tableListAdpter = new TableListAdapter(MainActivity.this,
+                        android.R.layout.simple_list_item_2, m_tableList.getTables() );
+
+                //ListView pour les tables
+                ListView listView = findViewById( R.id.table_list );
+                listView.setAdapter( m_tableListAdpter );
+                listView.setOnItemClickListener( new AdapterView.OnItemClickListener() {
+
+                    @Override
+                    public void onItemClick( AdapterView<?> parent, View view, int position, long id ) {
+                        Intent intent = new Intent( MainActivity.this, TableActivity.class );
+                        intent.putExtra( TABLE, m_tableList.getTable( position ).getId() );
+                        MainActivity.this.startActivity( intent );
+                    }
+                } );
             }
-        } );
+        }.execute();
     }
 
     @Override
@@ -149,7 +95,6 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    @SuppressWarnings( "StatementWithEmptyBody" )
     @Override
     public boolean onNavigationItemSelected( MenuItem item ) {
         // Handle navigation view item clicks here.
@@ -166,26 +111,20 @@ public class MainActivity extends AppCompatActivity
         return true;
     }
 
-    @Override
-    protected void onActivityResult( int requestCode, int resultCode, Intent data ) {
-        switch ( requestCode ) {
-            case REQ_TABLE:
-                m_tableList.seTable( ( Table ) data.getSerializableExtra( TABLE ) );
-                break;
-        }
-    }
 
     @Override
     public void onDialogPositiveClick( DialogFragment dialog ) {
         EditText newTableEdt = dialog.getDialog().findViewById( R.id.edit_text );
         m_tableList.createTable( newTableEdt.getText().toString() );
+
+        new AsyncTask<Void, Void, Integer>() {
+            @Override
+            protected Integer doInBackground(Void... voids) {
+                m_dataBase.tableDAO().insertAll( m_tableList.getTables() );
+                return null;
+            }
+        }.execute();
+
         m_tableListAdpter.notifyDataSetChanged();
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
-
-        saveFiles();
     }
 }

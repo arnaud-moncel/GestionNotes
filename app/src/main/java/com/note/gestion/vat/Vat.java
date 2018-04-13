@@ -31,16 +31,16 @@ public class Vat {
         m_percent = percent;
     }
 
-    /*
-    * GETTER
-    */
+    /**
+     * GETTER
+     */
     public int getId() { return m_id; }
     public String getDesignation() { return m_designation; }
     public Double getPercent() { return m_percent; }
 
-    /*
-    * SETTER
-    */
+    /**
+     * SETTER
+     */
     public void setId( int id ) { m_id = id; }
     public void setDesignation( String designation ) { m_designation = designation; }
     public void setPercent( Double percent ) { m_percent = percent; }

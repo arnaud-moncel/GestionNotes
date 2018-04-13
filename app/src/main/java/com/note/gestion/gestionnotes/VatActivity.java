@@ -1,7 +1,6 @@
 package com.note.gestion.gestionnotes;
 
 import android.app.DialogFragment;
-import android.arch.persistence.room.Room;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -24,7 +23,7 @@ public class VatActivity extends AppCompatActivity
     private VatList m_vatList;
     private VatListAdapter m_vatListAdpter;
 
-    private static final String VAT = "vat";
+    private static final String VAT = "com.note.gestion.VAT";
 
     private int m_editedVatId = -1;
 
@@ -56,7 +55,11 @@ public class VatActivity extends AppCompatActivity
             @Override
             protected Integer doInBackground(Void... voids) {
                 m_vatList = new VatList( m_dataBase.vatDAO().getAll() );
+                return null;
+            }
 
+            @Override
+            protected void onPostExecute(Integer result) {
                 m_vatListAdpter = new VatListAdapter(VatActivity.this,
                         R.layout.item_list_vat, m_vatList.getVats() );
 
@@ -78,7 +81,6 @@ public class VatActivity extends AppCompatActivity
                         addTableDialog.show( getFragmentManager(), VAT );
                     }
                 } );
-                return null;
             }
         }.execute();
     }

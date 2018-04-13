@@ -1,10 +1,6 @@
 package com.note.gestion.gestionnotes;
 
-import android.app.Activity;
 import android.app.DialogFragment;
-import android.arch.persistence.room.Room;
-import android.content.Context;
-import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -19,18 +15,16 @@ import android.widget.EditText;
 import android.widget.GridView;
 import android.widget.Spinner;
 
+import com.note.gestion.carte.CarteAdapter;
+import com.note.gestion.carte.Dish;
+import com.note.gestion.carte.DishList;
 import com.note.gestion.carte.Group;
 import com.note.gestion.carte.GroupList;
 import com.note.gestion.vat.Vat;
 import com.note.gestion.vat.VatList;
 
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.ObjectOutputStream;
 import java.util.ArrayDeque;
 import java.util.Deque;
-
 
 public class CarteActivity extends AppCompatActivity
         implements SpinnerAddDialog.NoticeDialogListener,
@@ -39,10 +33,12 @@ public class CarteActivity extends AppCompatActivity
 
     private VatList m_vatList;
 
+    private Group m_currentGroup;
     private GroupList m_groupList;
-    //private Deque<Group> m_previousGroups = new ArrayDeque<>();
+    private DishList m_dishList;
+    private Deque<Group> m_previousGroups = new ArrayDeque<>();
 
-    //private CarteAdapter m_carteAdapter;
+    private CarteAdapter m_carteAdapter;
     private GridView m_gridView;
 
     private Boolean m_isFabOpen = false;
@@ -77,6 +73,36 @@ public class CarteActivity extends AppCompatActivity
         }
     }
 
+    private void getCurrentLists() {
+        m_groupList = new GroupList( m_currentGroup.getId(), m_dataBase.groupDAO().getAllByParentGroup( m_currentGroup.getId() ) );
+        m_dishList = new DishList( m_currentGroup, m_dataBase.dishDAO().getAllByGroup( m_currentGroup.getId() ) );
+
+        //For nested object
+        for( Group group : m_groupList.getGroups() ) {
+            group.setVat( m_vatList.getVat( group.getVatId() - 1 ) );
+        }
+
+        for( Dish dish : m_dishList.getDishes() ) {
+            dish.setVat( m_vatList.getVat( dish.getVatId() - 1 ) );
+        }
+    }
+
+    private void hardReloadLists() {
+        new AsyncTask<Void, Void, Integer>() {
+            @Override
+            protected Integer doInBackground(Void... voids) {
+                getCurrentLists();
+                return null;
+            }
+
+            @Override
+            protected void onPostExecute(Integer result) {
+                m_carteAdapter = new CarteAdapter( CarteActivity.this, R.layout.grid_view_item_carte, m_groupList.getGroups(), m_dishList.getDishes() );
+                m_gridView.setAdapter( m_carteAdapter );
+            }
+        }.execute();
+    }
+
     @Override
     protected void onCreate( Bundle savedInstanceState ) {
         super.onCreate( savedInstanceState );
@@ -92,13 +118,32 @@ public class CarteActivity extends AppCompatActivity
             @Override
             protected Integer doInBackground(Void... voids) {
                 m_vatList = new VatList( m_dataBase.vatDAO().getAll() );
-                m_groupList = new GroupList( 1, m_dataBase.groupDAO().getAllByParentGroup( 1 ) );
+                m_currentGroup = m_dataBase.groupDAO().getById( 1 );
+                m_currentGroup.setVat( m_vatList.getVat( m_currentGroup.getVatId() - 1 ) );
 
-                //For nested object
-                for( Group group : m_groupList.getGroups() ) {
-                    group.setVat( m_vatList.getVat( group.getVatId() - 1 ) );
-                }
+                getCurrentLists();
                 return null;
+            }
+
+            @Override
+            protected void onPostExecute(Integer result) {
+                m_carteAdapter = new CarteAdapter(CarteActivity.this,
+                        R.layout.grid_view_item_carte, m_groupList.getGroups(), m_dishList.getDishes() );
+
+                m_gridView = findViewById( R.id.carte_grid );
+                m_gridView.setAdapter( m_carteAdapter );
+                m_gridView.setOnItemClickListener( new AdapterView.OnItemClickListener() {
+
+                    @Override
+                    public void onItemClick(AdapterView<?> parent, View view, int position, long id ) {
+                        if( position < m_groupList.getGroups().size() ) {
+                            m_previousGroups.push( m_currentGroup );
+                            m_currentGroup = m_groupList.getGroup( position );
+
+                            hardReloadLists();
+                        }
+                    }
+                } );
             }
         }.execute();
 
@@ -139,25 +184,6 @@ public class CarteActivity extends AppCompatActivity
         m_animClose = AnimationUtils.loadAnimation( getApplicationContext(),R.anim.fab_close );
         m_animRotFor = AnimationUtils.loadAnimation( getApplicationContext(),R.anim.rotate_forward );
         m_animRotBack = AnimationUtils.loadAnimation( getApplicationContext(),R.anim.rotate_backward );
-
-        /*m_carteAdapter = new CarteAdapter(this,
-                R.layout.grid_view_item_carte, m_carte.getItems() );
-
-        m_gridView = findViewById( R.id.carte_grid );
-        m_gridView.setAdapter( m_carteAdapter );
-        m_gridView.setOnItemClickListener( new AdapterView.OnItemClickListener() {
-
-            @Override
-            public void onItemClick( AdapterView<?> parent, View view, int position, long id ) {
-                if( m_carte.getItem( position ) instanceof Group ) {
-                    m_previousGroups.push( m_carte );
-                    m_carte = ( Group ) m_carte.getItem( position );
-                    m_carteAdapter = new CarteAdapter( view.getContext(), R.layout.grid_view_item_carte, m_carte.getItems() );
-                    m_gridView.setAdapter( m_carteAdapter );
-                    m_carteAdapter.notifyDataSetChanged();
-                }
-            }
-        } );*/
     }
 
     @Override
@@ -176,24 +202,29 @@ public class CarteActivity extends AppCompatActivity
                     return null;
                 }
             }.execute();
-        } /*else {
+        } else {
             EditText newEdtc = dialog.getDialog().findViewById( R.id.edit_decimal );
-            m_carte.addDish( newEdt.getText().toString(), Double.valueOf( newEdtc.getText().toString() ) );
-        }*/
+            m_dishList.createDish( newEdt.getText().toString(), Double.valueOf( newEdtc.getText().toString() ) );
+            new AsyncTask<Void, Void, Integer>() {
+                @Override
+                protected Integer doInBackground(Void... voids) {
+                    m_dataBase.dishDAO().insertAll( m_dishList.getDishes() );
+                    return null;
+                }
+            }.execute();
+        }
 
-        //m_carteAdapter.notifyDataSetChanged();*/
+        m_carteAdapter.changeData();
     }
 
     @Override
     public void onBackPressed() {
-        /*if( m_previousGroups.size() != 0 ) {
-            m_carte =  m_previousGroups.pop();
-            m_carteAdapter = new CarteAdapter( this, R.layout.grid_view_item_carte, m_carte.getItems() );
-            m_gridView.setAdapter( m_carteAdapter );
-            m_carteAdapter.notifyDataSetChanged();
+        if( m_previousGroups.size() != 0 ) {
+            m_currentGroup =  m_previousGroups.pop();
+            hardReloadLists();
         } else {
             finish();
-        }*/
+        }
     }
 
     @Override
