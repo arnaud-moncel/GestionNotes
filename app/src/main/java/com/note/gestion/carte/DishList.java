@@ -21,4 +21,5 @@ public class DishList {
 
     public List<Dish> getDishes() { return m_dishes; }
     public Dish getDish( int position ) { return m_dishes.get( position ); }
+    public Dish getLastDish() { return m_dishes.get( m_dishes.size() -1 ); }
 }

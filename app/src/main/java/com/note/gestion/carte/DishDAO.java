@@ -2,7 +2,6 @@ package com.note.gestion.carte;
 
 import android.arch.persistence.room.Dao;
 import android.arch.persistence.room.Insert;
-import android.arch.persistence.room.OnConflictStrategy;
 import android.arch.persistence.room.Query;
 
 import java.util.List;
@@ -16,6 +15,6 @@ public interface DishDAO {
     @Query( "Select * from `Dish` where group_id=:groupId" )
     List<Dish> getAllByGroup( int groupId );
 
-    @Insert( onConflict = OnConflictStrategy.REPLACE )
-    void insertAll( List<Dish> dishes );
+    @Insert
+    void insert( Dish dish );
 }

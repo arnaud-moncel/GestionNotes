@@ -2,7 +2,6 @@ package com.note.gestion.vat;
 
 import android.arch.persistence.room.Dao;
 import android.arch.persistence.room.Insert;
-import android.arch.persistence.room.OnConflictStrategy;
 import android.arch.persistence.room.Query;
 
 import java.util.List;
@@ -15,9 +14,6 @@ import java.util.List;
 public interface VatDAO {
     @Query( "Select * from Vat" )
     List<Vat> getAll();
-
-    @Insert( onConflict = OnConflictStrategy.REPLACE )
-    void insertAll( List<Vat> vats);
 
     @Insert
     void insert( Vat vat );

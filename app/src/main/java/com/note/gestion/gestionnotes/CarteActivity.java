@@ -198,7 +198,8 @@ public class CarteActivity extends AppCompatActivity
             new AsyncTask<Void, Void, Integer>() {
                 @Override
                 protected Integer doInBackground(Void... voids) {
-                    m_dataBase.groupDAO().insertAll( m_groupList.getGroups() );
+                    m_dataBase.groupDAO().insert( m_groupList.getLastGroup() );
+                    m_groupList.getLastGroup().setId( m_dataBase.groupDAO().getLastId() );
                     return null;
                 }
             }.execute();
@@ -208,7 +209,7 @@ public class CarteActivity extends AppCompatActivity
             new AsyncTask<Void, Void, Integer>() {
                 @Override
                 protected Integer doInBackground(Void... voids) {
-                    m_dataBase.dishDAO().insertAll( m_dishList.getDishes() );
+                    m_dataBase.dishDAO().insert( m_dishList.getLastDish() );
                     return null;
                 }
             }.execute();

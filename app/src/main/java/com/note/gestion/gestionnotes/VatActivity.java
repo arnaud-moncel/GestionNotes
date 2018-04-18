@@ -103,7 +103,7 @@ public class VatActivity extends AppCompatActivity
         new AsyncTask<Void, Void, Integer>() {
             @Override
             protected Integer doInBackground(Void... voids) {
-                m_dataBase.vatDAO().insertAll( m_vatList.getVats() );
+                m_dataBase.vatDAO().insert( m_vatList.getLasVat() );
                 return null;
             }
         }.execute();

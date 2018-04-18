@@ -23,4 +23,5 @@ public class GroupList {
 
     public List<Group> getGroups() { return m_groups; }
     public Group getGroup( int position ) { return m_groups.get( position ); }
+    public Group getLastGroup() { return m_groups.get( m_groups.size() - 1 ); }
 }

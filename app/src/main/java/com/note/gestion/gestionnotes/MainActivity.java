@@ -120,7 +120,7 @@ public class MainActivity extends AppCompatActivity
         new AsyncTask<Void, Void, Integer>() {
             @Override
             protected Integer doInBackground(Void... voids) {
-                m_dataBase.tableDAO().insertAll( m_tableList.getTables() );
+                m_dataBase.tableDAO().insert( m_tableList.getLastTable() );
                 return null;
             }
         }.execute();

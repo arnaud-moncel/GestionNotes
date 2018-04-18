@@ -2,7 +2,6 @@ package com.note.gestion.table;
 
 import android.arch.persistence.room.Dao;
 import android.arch.persistence.room.Insert;
-import android.arch.persistence.room.OnConflictStrategy;
 import android.arch.persistence.room.Query;
 
 import java.util.List;
@@ -16,8 +15,8 @@ public interface TableDAO {
     @Query( "Select * from `Table`" )
     List<Table> getAll();
 
-    @Insert( onConflict = OnConflictStrategy.REPLACE )
-    void insertAll( List<Table> tables );
+    @Query( "Select * from `Table` where id=:id" )
+    Table getById( int id );
 
     @Insert
     void insert( Table table );
