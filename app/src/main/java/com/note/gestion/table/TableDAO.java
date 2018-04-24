@@ -18,6 +18,9 @@ public interface TableDAO {
     @Query( "Select * from `Table` where id=:id" )
     Table getById( int id );
 
+    @Query( "Select max( id ) from `Table`" )
+    int getLastId();
+
     @Insert
     void insert( Table table );
 }

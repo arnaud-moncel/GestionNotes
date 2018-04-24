@@ -121,6 +121,8 @@ public class MainActivity extends AppCompatActivity
             @Override
             protected Integer doInBackground(Void... voids) {
                 m_dataBase.tableDAO().insert( m_tableList.getLastTable() );
+                int lastId = m_dataBase.tableDAO().getLastId();
+                m_tableList.getLastTable().setId( m_dataBase.tableDAO().getLastId() );
                 return null;
             }
         }.execute();

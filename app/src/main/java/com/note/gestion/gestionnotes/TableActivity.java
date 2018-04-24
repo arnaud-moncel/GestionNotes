@@ -1,7 +1,5 @@
 package com.note.gestion.gestionnotes;
 
-import android.app.Activity;
-import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -18,18 +16,22 @@ import com.note.gestion.carte.DishList;
 import com.note.gestion.carte.Group;
 import com.note.gestion.carte.GroupList;
 import com.note.gestion.table.Table;
-import com.note.gestion.table.TableAdapter;
+import com.note.gestion.table.TableDish;
+import com.note.gestion.table.TableDishList;
+import com.note.gestion.table.TableDishListAdapter;
 import com.note.gestion.vat.VatList;
 
 import java.util.ArrayDeque;
 import java.util.Deque;
+import java.util.List;
 
 public class TableActivity extends AppCompatActivity {
     private AppDatabase m_dataBase;
 
     private Table m_table;
+    private TableDishList m_tableDishList;
 
-    private TableAdapter m_tableAdapter;
+    private TableDishListAdapter m_tableDishListAdapter;
 
     private VatList m_vatList;
 
@@ -82,8 +84,6 @@ public class TableActivity extends AppCompatActivity {
 
         m_dataBase = AppDatabase.getInstance( getApplicationContext() );
 
-        //TODO changer la recuperation de l'intent avec les DAOs
-        //  Creer une table d'association pour lier les dish avec la table
         new AsyncTask<Void, Void, Integer>() {
             @Override
             protected Integer doInBackground(Void... voids) {
@@ -92,6 +92,13 @@ public class TableActivity extends AppCompatActivity {
                 m_vatList = new VatList( m_dataBase.vatDAO().getAll() );
                 m_currentGroup = m_dataBase.groupDAO().getById( 1 );
                 m_currentGroup.setVat( m_vatList.getVat( m_currentGroup.getVatId() - 1 ) );
+
+                List<Dish> dishList = m_dataBase.dishDAO().getAll();
+                m_tableDishList = new TableDishList( m_table.getId(), m_dataBase.tableDishDAO().getAllByTableId( m_table.getId() ) );
+
+                for( TableDish tableDish : m_tableDishList.getTableDishes() ) {
+                    tableDish.setDish( dishList.get( tableDish.getDishId() - 1 ) );
+                }
 
                 getCurrentLists();
                 return null;
@@ -116,19 +123,33 @@ public class TableActivity extends AppCompatActivity {
 
                             hardReloadLists();
                         }  else {
-                            //TODO ajouter un dish a la table
+                            final int tableDishId = m_tableDishList.createTableDish( m_dishList.getDish( position - m_groupList.getGroups().size() ) );
+                            new AsyncTask<Void, Void, Integer>() {
+                                @Override
+                                protected Integer doInBackground(Void... voids) {
+                                    if( tableDishId >= 0 ) {
+                                        m_dataBase.tableDishDAO().update( m_tableDishList.getTableDish( tableDishId ) );
+                                    } else {
+                                        m_dataBase.tableDishDAO().insert( m_tableDishList.getLastTableDish() );
+                                        m_tableDishList.getLastTableDish().setId( m_dataBase.tableDishDAO().getLastId() );
+                                    }
+                                    return null;
+                                }
+                            }.execute();
+
+                            m_tableDishListAdapter.notifyDataSetChanged();
                         }
                     }
                 } );
+
+                m_tableDishListAdapter = new TableDishListAdapter(TableActivity.this,
+                        android.R.layout.simple_list_item_2, m_tableDishList.getTableDishes() );
+
+                //ListView pour les tables
+                ListView listView = findViewById( R.id.dish_list );
+                listView.setAdapter( m_tableDishListAdapter );
             }
         }.execute();
-
-        /*m_tableAdapter = new TableAdapter(this,
-                android.R.layout.simple_list_item_2, m_table.getDishes() );
-
-        //ListView pour les tables
-        ListView listView = findViewById( R.id.dish_list );
-        listView.setAdapter( m_tableAdapter );*/
     }
 
     @Override

@@ -12,6 +12,9 @@ import java.util.List;
 
 @Dao
 public interface DishDAO {
+    @Query( "Select * from `Dish`" )
+    List<Dish> getAll();
+
     @Query( "Select * from `Dish` where group_id=:groupId" )
     List<Dish> getAllByGroup( int groupId );
 
