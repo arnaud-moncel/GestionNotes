@@ -1,9 +1,13 @@
 package com.note.gestion.gestionnotes;
 
+import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.print.PrintManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
@@ -153,11 +157,34 @@ public class TableActivity extends AppCompatActivity {
     }
 
     @Override
+    public boolean onCreateOptionsMenu( Menu menu ) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate( R.menu.activity_table, menu );
+        return true;
+    }
+
+    private void doPrint() {
+        // Get a PrintManager instance
+        PrintManager printManager = ( PrintManager ) getSystemService( Context.PRINT_SERVICE );
+
+        // Set job name, which will be displayed in the print queue
+        String jobName = getString( R.string.app_name ) + " Document";
+
+        // Start a print job, passing in a PrintDocumentAdapter implementation
+        // to handle the generation of a print document
+        printManager.print( jobName, new PrintAdapter(), null );
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             // Respond to the action bar's Up/Home button
             case android.R.id.home:
                 finish();
+                return true;
+
+            case R.id.action_print:
+                doPrint();
                 return true;
         }
         return super.onOptionsItemSelected(item);
