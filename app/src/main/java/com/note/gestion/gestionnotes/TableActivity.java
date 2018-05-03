@@ -172,7 +172,7 @@ public class TableActivity extends AppCompatActivity {
 
         // Start a print job, passing in a PrintDocumentAdapter implementation
         // to handle the generation of a print document
-        printManager.print( jobName, new PrintAdapter(), null );
+        printManager.print( jobName, new PrintTableAdapter( getApplicationContext(), m_tableDishList.getTableDishes() ), null );
     }
 
     @Override
