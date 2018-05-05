@@ -18,4 +18,5 @@ public class TableList {
     public List<Table> getTables() { return m_tables; }
     public Table getTable( int position ) { return m_tables.get( position ); }
     public Table getLastTable() { return m_tables.get( m_tables.size() - 1 ); }
+    public void deleteTable( int position ) { m_tables.remove( position ); }
 }

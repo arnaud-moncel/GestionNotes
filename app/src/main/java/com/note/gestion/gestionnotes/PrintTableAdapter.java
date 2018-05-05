@@ -1,6 +1,5 @@
 package com.note.gestion.gestionnotes;
 
-import android.arch.persistence.room.util.StringUtil;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -15,15 +14,16 @@ import android.print.PrintDocumentAdapter;
 import android.print.PrintDocumentInfo;
 import android.print.pdf.PrintedPdfDocument;
 
-import com.itextpdf.text.pdf.PdfPTable;
+import com.note.gestion.carte.Dish;
 import com.note.gestion.table.TableDish;
+import com.note.gestion.vat.Vat;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Formatter;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.List;
 
 public class PrintTableAdapter extends PrintDocumentAdapter {
@@ -34,22 +34,6 @@ public class PrintTableAdapter extends PrintDocumentAdapter {
     public PrintTableAdapter( Context context, List<TableDish> tableDishList ) {
         m_context = context;
         m_tableDishList = tableDishList;
-    }
-
-    private int computePageCount(PrintAttributes printAttributes) {
-        int itemsPerPage = 4; // default item count for portrait mode
-
-        PrintAttributes.MediaSize pageSize = printAttributes.getMediaSize();
-        if (!pageSize.isPortrait()) {
-            // Six items per page in landscape orientation
-            itemsPerPage = 6;
-        }
-
-        // Determine number of print items
-        //int printItemCount = getPrintItemCount();
-        int printItemCount = itemsPerPage;
-
-        return (int) Math.ceil(printItemCount / itemsPerPage);
     }
 
     @Override
@@ -64,42 +48,31 @@ public class PrintTableAdapter extends PrintDocumentAdapter {
         }
 
         // Compute the expected number of printed pages
-        int pages = computePageCount(newAttributes);
-
-        if (pages > 0) {
-            // Return print information to print framework
-            PrintDocumentInfo info = new PrintDocumentInfo
-                    .Builder("print_output.pdf")
-                    .setContentType(PrintDocumentInfo.CONTENT_TYPE_DOCUMENT)
-                    .setPageCount(pages)
-                    .build();
-            // Content layout reflow is complete
-            callback.onLayoutFinished(info, true);
-        } else {
-            // Otherwise report an error to the print framework
-            callback.onLayoutFailed("Page count calculation failed.");
-        }
-    }
-
-    private String computeLine( int maxLine, String str, boolean right ) {
-        if( right ) {
-            do {
-                str = " " + str;
-            } while ( str.length() < maxLine );
-        } else {
-            do {
-                str += " ";
-            } while ( str.length() < maxLine );
+        int pages = 1;
+        if( m_tableDishList.size() - 4 > 0 ) {
+            pages++;
+            pages += ( m_tableDishList.size() - 4 ) / 20;
         }
 
-        return str;
+        // Return print information to print framework
+        PrintDocumentInfo info = new PrintDocumentInfo
+                .Builder("print_output.pdf")
+                .setContentType(PrintDocumentInfo.CONTENT_TYPE_DOCUMENT)
+                .setPageCount(pages)
+                .build();
+        // Content layout reflow is complete
+        callback.onLayoutFinished(info, true);
     }
 
-    private void drawPage(PdfDocument.Page page) {
+    private void drawPages() {
+        int nbPage = 0;
+        PdfDocument.Page page = m_pdfDocument.startPage( nbPage );
         Canvas canvas = page.getCanvas();
 
         // units are in points (1/72 of an inch)
-        int titleBaseLine = 70;
+        int topMargin = 50;
+        int bottomMargin = 750;
+        int lineOffset = topMargin;
         int leftMargin = 35;
         int lineBase = 40;
 
@@ -108,98 +81,139 @@ public class PrintTableAdapter extends PrintDocumentAdapter {
         paint.setColor(Color.BLACK);
         paint.setTextSize(35);
 
-        canvas.drawText( "AR BREIZH BOUGNATE", leftMargin, titleBaseLine, paint );
-        titleBaseLine += lineBase;
+        canvas.drawText( "AR BREIZH BOUGNATE", leftMargin, lineOffset, paint );
+        lineOffset += lineBase;
 
-        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
-        canvas.drawText("Date: " + sdf.format( new Date() ), leftMargin, titleBaseLine, paint);
-        titleBaseLine += lineBase * 2;
+        canvas.drawText( "SNC LANGEAC PRESSE", leftMargin, lineOffset, paint );
+        lineOffset += lineBase;
+
+        canvas.drawText( "35 RUE DU PONT", leftMargin, lineOffset, paint );
+        lineOffset += lineBase;
+
+        canvas.drawText( "43300 LANGEAC", leftMargin, lineOffset, paint );
+        lineOffset += lineBase;
+
+        canvas.drawText( "Tel: 04 71 77 09 04", leftMargin, lineOffset, paint );
+        lineOffset += lineBase;
+
+        canvas.drawText( "Siret : 44379344300039", leftMargin, lineOffset, paint );
+        lineOffset += lineBase * 2;
+
+        paint.setTextSize(30);
+
+        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+        canvas.drawText("Date: " + sdf.format( new Date() ), leftMargin, lineOffset, paint);
+        lineOffset += lineBase * 2;
 
         leftMargin -= 30;
         lineBase = 35;
-        paint.setTextSize(30);
 
-        int designationMaxWith = 7;
-        int priceMaxWidth = 2;
-        int qtyMaxWidth = 8;
-        int totalMawWidth = 5;
-        for( TableDish tableDish : m_tableDishList ) {
-            if( tableDish.getDish().getDesignation().length() > designationMaxWith ) {
-                designationMaxWith = tableDish.getDish().getDesignation().length();
+        int designationMaxWith = 21;
+        int priceMaxWidth = 6;
+        int qtyMaxWidth = 3;
+        Map<Vat, Double> invoiceTotalMap = new HashMap<>();
+
+        int margin = leftMargin;
+        canvas.drawText( "ARTICLE", margin, lineOffset, paint);
+
+        margin += designationMaxWith * 15;
+        canvas.drawText( "PU", margin, lineOffset, paint);
+
+        margin += priceMaxWidth * 15;
+        canvas.drawText( "X", margin, lineOffset, paint);
+
+        margin += qtyMaxWidth * 15;
+        canvas.drawText( "TOTAL", margin, lineOffset, paint);
+        lineOffset += lineBase;
+
+        for( int i = 0; i <  m_tableDishList.size(); i++, lineOffset += lineBase ) {
+            if( lineOffset >= bottomMargin ) {
+                m_pdfDocument.finishPage( page );
+                page = m_pdfDocument.startPage( ++nbPage );
+                canvas = page.getCanvas();
+                lineOffset = topMargin;
             }
 
-            if( tableDish.getDish().getPrice().toString().length() > priceMaxWidth ) {
-                priceMaxWidth = tableDish.getDish().getPrice().toString().length();
-            }
+            Dish dish = m_tableDishList.get( i ).getDish();
 
-            if( String.valueOf( tableDish.getQty() ).length() > qtyMaxWidth ) {
-                qtyMaxWidth = String.valueOf( tableDish.getQty() ).length();
+            margin = leftMargin;
+            String str = dish.getDesignation();
+            if( str.length() > designationMaxWith - 1 ) {
+                str = str.substring( 0, designationMaxWith );
             }
+            canvas.drawText( str, margin, lineOffset, paint);
 
-            Double total = tableDish.getDish().getPrice() * tableDish.getQty();
-            if( String.valueOf( total ).length() > totalMawWidth ) {
-                totalMawWidth = String.valueOf( total ).length();
+            margin += designationMaxWith * 15;
+            str = String.format( "%.2f", dish.getPrice() );
+            if ( str.length() < priceMaxWidth - 1 ) {
+                str = String.format( "%6.2f", dish.getPrice() );
             }
+            canvas.drawText( str, margin, lineOffset, paint);
+
+            margin += priceMaxWidth * 15;
+            canvas.drawText( String.valueOf( m_tableDishList.get( i ).getQty() ), margin, lineOffset, paint);
+
+            margin += qtyMaxWidth * 15;
+            Double total = dish.getPrice() * m_tableDishList.get( i ).getQty();
+            Vat vat = dish.getVat();
+            if( !invoiceTotalMap.containsKey( vat ) ) {
+                invoiceTotalMap.put( vat, total );
+            } else {
+                invoiceTotalMap.put( vat, invoiceTotalMap.get( vat ) + total );
+            }
+            str = String.format( "%.2f", total );
+            if ( str.length() < priceMaxWidth - 1 ) {
+                str = String.format( "%6.2f", total );
+            }
+            canvas.drawText( str, margin, lineOffset, paint);
+        }
+        lineOffset += lineBase;
+        if( lineOffset >= bottomMargin ) {
+            m_pdfDocument.finishPage( page );
+            page = m_pdfDocument.startPage( ++nbPage );
+            canvas = page.getCanvas();
+            lineOffset = topMargin;
         }
 
-        StringBuilder strb = new StringBuilder();
-        strb.append( computeLine( designationMaxWith, "Article", false ) );
-        strb.append( computeLine( priceMaxWidth, "PU", false ) );
-        strb.append( computeLine( qtyMaxWidth, "Quantité", true ) );
-        strb.append( computeLine( totalMawWidth, "Total", true ) );
+        Double total = 0.0;
+        for( Map.Entry<Vat, Double> entry : invoiceTotalMap.entrySet() ) {
+            if( lineOffset >= bottomMargin ) {
+                m_pdfDocument.finishPage( page );
+                page = m_pdfDocument.startPage( ++nbPage );
+                canvas = page.getCanvas();
+                lineOffset = topMargin;
+            }
+            Double vat = ( entry.getValue() / ( 1 + entry.getKey().getPercent() / 100 ) ) * ( entry.getKey().getPercent() / 100 );
 
-        canvas.drawText(strb.toString().toUpperCase(), leftMargin, titleBaseLine, paint);
-        titleBaseLine += lineBase;
+            String str = entry.getKey().getDesignation() + "  :  " + String.format( "%.2f", vat );
+            canvas.drawText( str, leftMargin, lineOffset, paint);
 
-        PdfPTable table = new PdfPTable( new float[] { 2, 1, 2 } );
-        canvas.drawText(table.toString().toUpperCase(), leftMargin, titleBaseLine, paint);
+            total += entry.getValue();
 
-        /*for( int i = 0, y = titleBaseLine; i <  m_tableDishList.size(); i++, y += lineBase ) {
+            lineOffset += lineBase;
+        }
+        lineOffset += lineBase;
+        if( lineOffset >= bottomMargin ) {
+            m_pdfDocument.finishPage( page );
+            page = m_pdfDocument.startPage( ++nbPage );
+            canvas = page.getCanvas();
+            lineOffset = topMargin;
+        }
 
-            Formatter fmt = new Formatter();
-            fmt.format(
-                    "%1$" + designationMaxWith + "s%2$" + priceMaxWidth + "s%3$" + qtyMaxWidth + "s%4$" + totalMawWidth + "s",
-                    m_tableDishList.get( i ).getDish().getDesignation(),
-                    m_tableDishList.get( i ).getDish().getPrice().toString(),
-                    String.valueOf( m_tableDishList.get( i ).getQty() ),
-                    String.valueOf( m_tableDishList.get( i ).getDish().getPrice() * m_tableDishList.get( i ).getQty() )
-                    );
-            /*strb = new StringBuilder();
-            strb.append( computeLine( designationMaxWith, m_tableDishList.get( i ).getDish().getDesignation(),false ) );
-            strb.append( computeLine( priceMaxWidth, m_tableDishList.get( i ).getDish().getPrice().toString(),false ) );
-            strb.append( computeLine( qtyMaxWidth, String.valueOf( m_tableDishList.get( i ).getQty() ),true ) );
-            strb.append( computeLine( totalMawWidth, String.valueOf( m_tableDishList.get( i ).getDish().getPrice() * m_tableDishList.get( i ).getQty() ),true ) );
-
-            canvas.drawText( fmt.toString().toUpperCase(), leftMargin, y, paint);
-        }*/
+        canvas.drawText( "Total  :  " + String.format( "%.2f", total ), leftMargin, lineOffset, paint);
+        m_pdfDocument.finishPage( page );
     }
 
     @Override
     public void onWrite(PageRange[] pages, ParcelFileDescriptor destination, CancellationSignal cancellationSignal, WriteResultCallback callback) {
-        // Iterate over each page of the document,
-        // check if it's in the output range.
-        for (int i = 0; i < pages.length; i++) {
-            // Check to see if this page is in the output range.
-            /*if (containsPage(pageRanges, i)) {
-                // If so, add it to writtenPagesArray. writtenPagesArray.size()
-                // is used to compute the next output page index.
-                writtenPagesArray.append(writtenPagesArray.size(), i);*/
-                PdfDocument.Page page = m_pdfDocument.startPage(i);
 
-                // check for cancellation
-                if (cancellationSignal.isCanceled()) {
-                    callback.onWriteCancelled();
-                    m_pdfDocument.close();
-                    m_pdfDocument = null;
-                    return;
-                }
+        drawPages();
 
-                // Draw page content for printing
-                drawPage(page);
-
-                // Rendering is complete, so page can be finalized.
-                m_pdfDocument.finishPage(page);
-            //}
+        if (cancellationSignal.isCanceled()) {
+            callback.onWriteCancelled();
+            m_pdfDocument.close();
+            m_pdfDocument = null;
+            return;
         }
 
         // Write PDF document to file

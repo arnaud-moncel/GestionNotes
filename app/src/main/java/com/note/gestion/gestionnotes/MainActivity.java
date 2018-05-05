@@ -1,7 +1,10 @@
 package com.note.gestion.gestionnotes;
 
+import android.app.AlertDialog;
 import android.app.DialogFragment;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -17,6 +20,7 @@ import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ListView;
 
+import com.note.gestion.table.Table;
 import com.note.gestion.table.TableList;
 import com.note.gestion.table.TableListAdapter;
 
@@ -72,6 +76,40 @@ public class MainActivity extends AppCompatActivity
                 //ListView pour les tables
                 ListView listView = findViewById( R.id.table_list );
                 listView.setAdapter( m_tableListAdpter );
+                listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+                    @Override
+                    public boolean onItemLongClick(AdapterView<?> adapterView, View view, final int i, long l) {
+                        final Table table = m_tableList.getTable( i );
+                        AlertDialog.Builder builder = new AlertDialog.Builder( view.getContext() );
+                        builder.setTitle("Supprimer une table")
+                                .setMessage("Vous allez supprimer la table : " + table.getDesignation() )
+                                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        new AsyncTask<Void, Void, Integer>() {
+                                            @Override
+                                            protected Integer doInBackground(Void... voids) {
+                                                m_dataBase.tableDAO().delete( table );
+                                                return null;
+                                            }
+
+                                            @Override
+                                            protected void onPostExecute(Integer result) {
+                                                m_tableList.deleteTable( i );
+                                                m_tableListAdpter.notifyDataSetChanged();
+                                            }
+                                        }.execute();
+                                    }
+                                })
+                                .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        // do nothing
+                                    }
+                                })
+                                .setIcon(android.R.drawable.ic_menu_delete)
+                                .show();
+                        return true;
+                    }
+                } );
                 listView.setOnItemClickListener( new AdapterView.OnItemClickListener() {
 
                     @Override

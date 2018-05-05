@@ -35,4 +35,5 @@ public class TableDishList {
     public List<TableDish> getTableDishes() { return m_tableDishes; }
     public TableDish getTableDish( int position ) { return m_tableDishes.get( position ); }
     public TableDish getLastTableDish() { return m_tableDishes.get( m_tableDishes.size() - 1 ); }
+    public void deleteTableDish( int position ) { m_tableDishes.remove( position ); }
 }

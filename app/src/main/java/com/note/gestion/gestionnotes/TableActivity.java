@@ -98,8 +98,11 @@ public class TableActivity extends AppCompatActivity {
                 m_currentGroup.setVat( m_vatList.getVat( m_currentGroup.getVatId() - 1 ) );
 
                 List<Dish> dishList = m_dataBase.dishDAO().getAll();
-                m_tableDishList = new TableDishList( m_table.getId(), m_dataBase.tableDishDAO().getAllByTableId( m_table.getId() ) );
+                for( Dish dish : dishList ) {
+                    dish.setVat( m_vatList.getVat( dish.getVatId() -1 ) );
+                }
 
+                m_tableDishList = new TableDishList( m_table.getId(), m_dataBase.tableDishDAO().getAllByTableId( m_table.getId() ) );
                 for( TableDish tableDish : m_tableDishList.getTableDishes() ) {
                     tableDish.setDish( dishList.get( tableDish.getDishId() - 1 ) );
                 }
@@ -152,6 +155,27 @@ public class TableActivity extends AppCompatActivity {
                 //ListView pour les tables
                 ListView listView = findViewById( R.id.dish_list );
                 listView.setAdapter( m_tableDishListAdapter );
+                listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+                    @Override
+                    public boolean onItemLongClick(AdapterView<?> adapterView, View view, final int i, long l) {
+
+                        new AsyncTask<Void, Void, Integer>() {
+                            @Override
+                            protected Integer doInBackground(Void... voids) {
+                                m_dataBase.tableDishDAO().delete(m_tableDishList.getTableDish(i));
+                                return null;
+                            }
+
+                            @Override
+                            protected void onPostExecute(Integer result) {
+                                m_tableDishList.deleteTableDish( i );
+                                m_tableDishListAdapter.notifyDataSetChanged();
+                            }
+                        }.execute();
+
+                        return false;
+                    }
+                });
             }
         }.execute();
     }

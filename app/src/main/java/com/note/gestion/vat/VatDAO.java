@@ -3,6 +3,7 @@ package com.note.gestion.vat;
 import android.arch.persistence.room.Dao;
 import android.arch.persistence.room.Insert;
 import android.arch.persistence.room.Query;
+import android.arch.persistence.room.Update;
 
 import java.util.List;
 
@@ -17,4 +18,7 @@ public interface VatDAO {
 
     @Insert
     void insert( Vat vat );
+
+    @Update
+    void update( Vat vat );
 }

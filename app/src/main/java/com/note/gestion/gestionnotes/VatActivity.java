@@ -95,18 +95,27 @@ public class VatActivity extends AppCompatActivity
 
         if( m_editedVatId > -1 ) {
             m_vatList.editVat( m_editedVatId, des, percent );
-            m_editedVatId = -1;
+            new AsyncTask<Void, Void, Integer>() {
+                @Override
+                protected Integer doInBackground(Void... voids) {
+                    m_dataBase.vatDAO().update( m_vatList.getVat( m_editedVatId ) );
+                    return null;
+                }
+                @Override
+                protected void onPostExecute(Integer result) {
+                    m_editedVatId = -1;
+                }
+            }.execute();
         } else {
             m_vatList.createVat( des, percent);
+            new AsyncTask<Void, Void, Integer>() {
+                @Override
+                protected Integer doInBackground(Void... voids) {
+                    m_dataBase.vatDAO().insert( m_vatList.getLasVat() );
+                    return null;
+                }
+            }.execute();
         }
-
-        new AsyncTask<Void, Void, Integer>() {
-            @Override
-            protected Integer doInBackground(Void... voids) {
-                m_dataBase.vatDAO().insert( m_vatList.getLasVat() );
-                return null;
-            }
-        }.execute();
 
         m_vatListAdpter.notifyDataSetChanged();
     }
