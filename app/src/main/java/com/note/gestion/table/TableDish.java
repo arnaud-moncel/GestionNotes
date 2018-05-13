@@ -29,7 +29,10 @@ public class TableDish {
     private int m_dishId;
 
     @ColumnInfo( name = "qty" )
-    private int m_qty;
+    private Integer m_qty;
+
+    @ColumnInfo( name = "price" )
+    private Double m_price;
 
     @Ignore
     private Dish m_dish;
@@ -46,6 +49,13 @@ public class TableDish {
         m_qty = qty;
         m_dish = dish;
     }
+    public TableDish ( int tableId, Dish dish, Double price, int qty ) {
+        m_tableId = tableId;
+        m_dishId = dish.getId();
+        m_qty = qty;
+        m_dish = dish;
+        m_price = price;
+    }
 
     /**
      *  GETTER
@@ -53,8 +63,9 @@ public class TableDish {
     public int getId() { return m_id; }
     public int getTableId() { return m_tableId; }
     public int getDishId() { return m_dishId; }
-    public int getQty() { return  m_qty; }
+    public Integer getQty() { return  m_qty; }
     public Dish getDish() { return m_dish; }
+    public Double getPrice() { return m_price; }
 
     /**
      *  SETTER
@@ -62,8 +73,9 @@ public class TableDish {
     public void setId( int id ) { m_id = id; }
     public void setTableId( int tableId ) { m_tableId = tableId; }
     public void setDishId( int dishId ) { m_dishId = dishId; }
-    public void setQty( int qty ) { m_qty = qty; }
+    public void setQty( Integer qty ) { m_qty = qty; }
     public void setDish( Dish dish ) { m_dish = dish; }
+    public void setPrice( Double price ) { m_price = price; }
 
     public void incrementQty() { m_qty++; }
 }

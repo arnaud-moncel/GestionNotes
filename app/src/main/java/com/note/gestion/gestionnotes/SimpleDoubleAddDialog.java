@@ -18,34 +18,23 @@ import android.widget.TextView;
  * Created by Arnaud Moncel on 22/02/2018.
  */
 
-public class SimpleAddDialog extends DialogFragment {
+public class SimpleDoubleAddDialog extends DialogFragment {
 
     private NoticeDialogListener m_Listener;
     private AlertDialog m_dialog;
 
     private static final String TITLE = "title";
     private static final String MSG = "message";
-    private static final String MSGEDT = "messageEdt";
 
     public interface NoticeDialogListener {
         void onDialogPositiveClick(DialogFragment dialog);
     }
 
-    public static SimpleAddDialog newInstance(int title, int message ) {
-        SimpleAddDialog dialog = new SimpleAddDialog();
+    public static SimpleDoubleAddDialog newInstance(int title, int message ) {
+        SimpleDoubleAddDialog dialog = new SimpleDoubleAddDialog();
         Bundle args = new Bundle();
         args.putInt( TITLE, title);
         args.putInt( MSG, message );
-        dialog.setArguments(args);
-        return dialog;
-    }
-
-    public static SimpleAddDialog newInstance( int title, int message, String msgEdt ) {
-        SimpleAddDialog dialog = new SimpleAddDialog();
-        Bundle args = new Bundle();
-        args.putInt( TITLE, title);
-        args.putInt( MSG, message );
-        args.putString( MSGEDT, msgEdt );
         dialog.setArguments(args);
         return dialog;
     }
@@ -60,13 +49,13 @@ public class SimpleAddDialog extends DialogFragment {
         AlertDialog.Builder builder = new AlertDialog.Builder( getActivity() );
         builder.setTitle( getArguments().getInt( TITLE ) );
 
-        View dialogView = getActivity().getLayoutInflater().inflate( R.layout.content_simple_dialog, null );
+        View dialogView = getActivity().getLayoutInflater().inflate( R.layout.content_simple_double_dialog, null );
 
         builder.setView( dialogView );
 
         builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
-                m_Listener.onDialogPositiveClick( SimpleAddDialog.this );
+                m_Listener.onDialogPositiveClick( SimpleDoubleAddDialog.this );
             }
         });
 
@@ -80,7 +69,7 @@ public class SimpleAddDialog extends DialogFragment {
             @Override
             public void onShow(final DialogInterface dialog) {
                 ((AlertDialog) dialog).getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
-                final EditText edt = ((AlertDialog) dialog).findViewById( R.id.edit_text );
+                final EditText edt = ((AlertDialog) dialog).findViewById( R.id.edit_decimal );
                 edt.post(new Runnable() {
                     @Override
                     public void run() {
@@ -94,11 +83,8 @@ public class SimpleAddDialog extends DialogFragment {
 
         ((TextView) dialogView.findViewById( R.id.text_view )).setText( getArguments().getInt( MSG ) );
 
-        EditText newEdt = dialogView.findViewById(R.id.edit_text);
-        if( getArguments().containsKey( MSGEDT ) ) {
-            newEdt.setText( getArguments().getString( MSGEDT ) );
-        }
-        newEdt.addTextChangedListener(new TextWatcher() {
+        EditText nEdtd = dialogView.findViewById(R.id.edit_decimal);
+        nEdtd.addTextChangedListener(new TextWatcher() {
 
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {

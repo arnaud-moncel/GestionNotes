@@ -69,8 +69,12 @@ public class CarteAdapter extends ArrayAdapter<String> {
             Dish dish = m_dishes.get( position - m_groups.size() );
             txtView.setText( dish.getDesignation() );
 
-            convertView.findViewById( R.id.grid_item ).setBackgroundResource( R.drawable.dish_background );
-            ((ImageView) convertView.findViewById( R.id.img_view )).setImageResource( 0 );
+            if( dish.getPrice() != null ) {
+                convertView.findViewById( R.id.grid_item ).setBackgroundResource( R.drawable.dish_background );
+            } else {
+                convertView.findViewById( R.id.grid_item ).setBackgroundResource( R.drawable.call_dish_background );
+            }
+            convertView.findViewById( R.id.img_view ).setVisibility( View.GONE );
         }
 
         return convertView;

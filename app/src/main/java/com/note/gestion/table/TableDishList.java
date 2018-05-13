@@ -17,17 +17,22 @@ public class TableDishList {
         m_tableDishes = tableDishes;
     }
 
-    public int createTableDish( Dish dish ) {
-        int id = 0;
-        while ( id < m_tableDishes.size() && m_tableDishes.get( id ).getDishId() != dish.getId() ) {
-            id++;
-        }
+    public int createTableDish( Dish dish, Double price, Integer qty ) {
+        if( price == null ) {
+            int id = 0;
+            while ( id < m_tableDishes.size() && m_tableDishes.get( id ).getDishId() != dish.getId() ) {
+                id++;
+            }
 
-        if( id < m_tableDishes.size() ) {
-            m_tableDishes.get( id ).incrementQty();
-            return id;
+            if( id < m_tableDishes.size() ) {
+                m_tableDishes.get( id ).incrementQty();
+                return id;
+            } else {
+                m_tableDishes.add( new TableDish( m_tableId, dish, 1 ) );
+                return - 1;
+            }
         } else {
-            m_tableDishes.add( new TableDish( m_tableId, dish, 1 ) );
+            m_tableDishes.add( new TableDish( m_tableId, dish, price, qty ) );
             return - 1;
         }
     }

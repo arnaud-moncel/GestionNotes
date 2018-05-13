@@ -28,7 +28,8 @@ import java.util.Deque;
 
 public class CarteActivity extends AppCompatActivity
         implements SpinnerAddDialog.NoticeDialogListener,
-        DoubleAddDialog.NoticeDialogListener {
+        DoubleAddDialog.NoticeDialogListener,
+        SimpleAddDialog.NoticeDialogListener {
     private AppDatabase m_dataBase;
 
     private VatList m_vatList;
@@ -38,6 +39,8 @@ public class CarteActivity extends AppCompatActivity
     private DishList m_dishList;
     private Deque<Group> m_previousGroups = new ArrayDeque<>();
 
+    private int m_editedDishId = -1;
+
     private CarteAdapter m_carteAdapter;
     private GridView m_gridView;
 
@@ -46,6 +49,7 @@ public class CarteActivity extends AppCompatActivity
     private FloatingActionButton m_fab;
     private FloatingActionButton m_fabAddItem;
     private FloatingActionButton m_fabAddGroup;
+    private FloatingActionButton m_fabAddCallItem;
 
     private Animation m_animClose;
     private Animation m_animOpen;
@@ -54,21 +58,26 @@ public class CarteActivity extends AppCompatActivity
 
     private static final String CARTE_GROUP = "com.note.gestion.CARTE.GROUP";
     private static final String CARTE_DISH = "com.note.gestion.CARTE.DISH";
+    private static final String CARTE_CALL_DISH = "com.note.gestion.CARTE_CALL_DISH";
 
     private void animateflocationBtn(){
         if( m_isFabOpen ){
             m_fab.startAnimation( m_animRotBack );
             m_fabAddGroup.startAnimation( m_animClose );
             m_fabAddItem.startAnimation( m_animClose );
+            m_fabAddCallItem.startAnimation( m_animClose );
             m_fabAddGroup.setClickable( false );
             m_fabAddItem.setClickable( false );
+            m_fabAddCallItem.setClickable( false );
             m_isFabOpen = false;
         } else {
             m_fab.startAnimation( m_animRotFor );
             m_fabAddGroup.startAnimation( m_animOpen );
             m_fabAddItem.startAnimation( m_animOpen );
+            m_fabAddCallItem.startAnimation( m_animOpen );
             m_fabAddGroup.setClickable( true );
             m_fabAddItem.setClickable( true );
+            m_fabAddCallItem.setClickable( true );
             m_isFabOpen = true;
         }
     }
@@ -141,6 +150,25 @@ public class CarteActivity extends AppCompatActivity
                             m_currentGroup = m_groupList.getGroup( position );
 
                             hardReloadLists();
+                        } else {
+                            m_editedDishId = position - m_groupList.getGroups().size();
+                            Dish dish = m_dishList.getDish( m_editedDishId );
+                            if( dish.getPrice() != null ) {
+                                DialogFragment addDishDialog = DoubleAddDialog.newInstance(
+                                        R.string.edit_dish_dialog_title,
+                                        R.string.add_dish_dialog_message,
+                                        R.string.add_dish_price_dialog_message,
+                                        dish.getDesignation(), dish.getPrice()
+                                );
+                                addDishDialog.show( getFragmentManager(), CARTE_DISH );
+                            } else {
+                                DialogFragment addCallDishDialog = SimpleAddDialog.newInstance(
+                                        R.string.edit_dish_dialog_title,
+                                        R.string.add_dish_dialog_message,
+                                        dish.getDesignation()
+                                );
+                                addCallDishDialog.show( getFragmentManager(), CARTE_CALL_DISH );
+                            }
                         }
                     }
                 } );
@@ -180,6 +208,16 @@ public class CarteActivity extends AppCompatActivity
             }
         } );
 
+        m_fabAddCallItem = findViewById( R.id.fab_add_call_item );
+        m_fabAddCallItem.setOnClickListener( new  View.OnClickListener() {
+            @Override
+            public void onClick( View view ) {
+                animateflocationBtn();
+                DialogFragment addCallDishDialog = SimpleAddDialog.newInstance( R.string.add_dish_dialog_title, R.string.add_dish_dialog_message );
+                addCallDishDialog.show( getFragmentManager(), CARTE_CALL_DISH );
+            }
+        } );
+
         m_animOpen = AnimationUtils.loadAnimation( getApplicationContext(), R.anim.fab_open );
         m_animClose = AnimationUtils.loadAnimation( getApplicationContext(),R.anim.fab_close );
         m_animRotFor = AnimationUtils.loadAnimation( getApplicationContext(),R.anim.rotate_forward );
@@ -189,12 +227,13 @@ public class CarteActivity extends AppCompatActivity
     @Override
     public void onDialogPositiveClick( DialogFragment dialog ) {
         EditText newEdt = dialog.getDialog().findViewById( R.id.edit_text );
+        String des = newEdt.getText().toString();
 
         if( dialog.getTag().equals( CARTE_GROUP ) ) {
             Spinner newSpinner = dialog.getDialog().findViewById( R.id.vat_spinner );
 
             Vat vat = m_vatList.getVat( newSpinner.getSelectedItemPosition() );
-            m_groupList.createGroup( newEdt.getText().toString(), vat );
+            m_groupList.createGroup( des, vat );
             new AsyncTask<Void, Void, Integer>() {
                 @Override
                 protected Integer doInBackground(Void... voids) {
@@ -203,16 +242,56 @@ public class CarteActivity extends AppCompatActivity
                     return null;
                 }
             }.execute();
-        } else {
+        } else if( dialog.getTag().equals( CARTE_DISH ) ) {
             EditText newEdtc = dialog.getDialog().findViewById( R.id.edit_decimal );
-            m_dishList.createDish( newEdt.getText().toString(), Double.valueOf( newEdtc.getText().toString() ) );
-            new AsyncTask<Void, Void, Integer>() {
-                @Override
-                protected Integer doInBackground(Void... voids) {
-                    m_dataBase.dishDAO().insert( m_dishList.getLastDish() );
-                    return null;
-                }
-            }.execute();
+            Double price = Double.valueOf( newEdtc.getText().toString() );
+            if( m_editedDishId > -1 ) {
+                m_dishList.editDish( m_editedDishId, des, price );
+                new AsyncTask<Void, Void, Integer>() {
+                    @Override
+                    protected Integer doInBackground(Void... voids) {
+                        m_dataBase.dishDAO().update( m_dishList.getDish( m_editedDishId ) );
+                        return null;
+                    }
+
+                    protected void onPostExecute(Integer result) {
+                        m_editedDishId = -1;
+                    }
+                }.execute();
+            } else {
+                m_dishList.createDish( des, price );
+                new AsyncTask<Void, Void, Integer>() {
+                    @Override
+                    protected Integer doInBackground(Void... voids) {
+                        m_dataBase.dishDAO().insert( m_dishList.getLastDish() );
+                        return null;
+                    }
+                }.execute();
+            }
+        } else if( dialog.getTag().equals( CARTE_CALL_DISH ) ) {
+            if( m_editedDishId > -1 ) {
+                m_dishList.editCallDish( m_editedDishId, des );
+                new AsyncTask<Void, Void, Integer>() {
+                    @Override
+                    protected Integer doInBackground(Void... voids) {
+                        m_dataBase.dishDAO().update( m_dishList.getDish( m_editedDishId ) );
+                        return null;
+                    }
+
+                    protected void onPostExecute(Integer result) {
+                        m_editedDishId = -1;
+                    }
+                }.execute();
+            } else {
+                m_dishList.createCallDish( des );
+                new AsyncTask<Void, Void, Integer>() {
+                    @Override
+                    protected Integer doInBackground(Void... voids) {
+                        m_dataBase.dishDAO().insert( m_dishList.getLastDish() );
+                        return null;
+                    }
+                }.execute();
+            }
         }
 
         m_carteAdapter.changeData();

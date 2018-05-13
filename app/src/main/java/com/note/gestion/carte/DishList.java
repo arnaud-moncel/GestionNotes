@@ -18,8 +18,12 @@ public class DishList {
     }
 
     public void createDish( String designation, Double price ) { m_dishes.add( new Dish( designation, price, m_group.getVat(), m_group.getId() ) ); }
+    public void createCallDish( String designation ) { m_dishes.add( new Dish( designation, m_group.getVat(), m_group.getId() ) ); }
 
     public List<Dish> getDishes() { return m_dishes; }
     public Dish getDish( int position ) { return m_dishes.get( position ); }
     public Dish getLastDish() { return m_dishes.get( m_dishes.size() -1 ); }
+
+    public void editDish( int position, String designation, Double price ) { m_dishes.get( position ).editDish( designation, price ); }
+    public void editCallDish( int position, String designation ) { m_dishes.get( position ).setDesignation( designation ); }
 }

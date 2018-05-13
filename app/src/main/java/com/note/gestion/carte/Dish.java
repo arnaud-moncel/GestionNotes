@@ -38,6 +38,13 @@ public class Dish {
     private int m_groupId;
 
     public Dish() {}
+    public Dish( String designation, Vat vat, int groupId ) {
+        m_designation = designation;
+        m_vat = vat;
+        m_vatId = vat.getId();
+        m_groupId = groupId;
+        m_price = null;
+    }
     public Dish( String designation, Double price, Vat vat, int groupId ) {
         m_designation = designation;
         m_price = price;
@@ -71,4 +78,6 @@ public class Dish {
     public void setVat( Vat vat ) { m_vat = vat; }
     public void setPrice( Double price ) { m_price = price; }
     public void setGroupId( int groupId ) { m_groupId = groupId; }
+
+    public void editDish( String designation, Double price ) { m_designation = designation; m_price = price; }
 }

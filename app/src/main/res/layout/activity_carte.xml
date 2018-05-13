@@ -24,6 +24,19 @@
     <include layout="@layout/content_carte" />
 
     <android.support.design.widget.FloatingActionButton
+        android:id="@+id/fab_add_call_item"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="230dp"
+        android:layout_gravity="bottom|end"
+        android:layout_marginRight="@dimen/fab_margin"
+        android:visibility="invisible"
+        android:tint="@android:color/background_light"
+        app:backgroundTint="#009688"
+        app:pressedTranslationZ="12dp"
+        android:src="@drawable/ic_call_dish" />
+
+    <android.support.design.widget.FloatingActionButton
         android:id="@+id/fab_add_group"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

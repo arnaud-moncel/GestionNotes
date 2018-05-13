@@ -34,7 +34,11 @@ public class TableDishListAdapter extends ArrayAdapter<TableDish> {
         }
 
         ( ( TextView ) convertView.findViewById(android.R.id.text1)).setText( m_tableDishes.get( position ).getDish().getDesignation() );
-        ( ( TextView ) convertView.findViewById(android.R.id.text2)).setText( String.valueOf( m_tableDishes.get( position ).getQty() ) );
+        if( m_tableDishes.get( position ).getDish().getPrice() != null ) {
+            ( ( TextView ) convertView.findViewById(android.R.id.text2)).setText( String.valueOf( m_tableDishes.get( position ).getQty() ) );
+        } else {
+            ( ( TextView ) convertView.findViewById(android.R.id.text2)).setText( String.valueOf( m_tableDishes.get( position ).getPrice() ) + " €" );
+        }
 
         return convertView;
     }

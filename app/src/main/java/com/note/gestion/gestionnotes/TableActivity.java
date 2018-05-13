@@ -1,9 +1,8 @@
 package com.note.gestion.gestionnotes;
 
-import android.content.Context;
+import android.app.DialogFragment;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.print.PrintManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
@@ -11,9 +10,11 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.EditText;
 import android.widget.GridView;
 import android.widget.ListView;
 
+import com.epson.epos2.printer.Printer;
 import com.note.gestion.carte.CarteAdapter;
 import com.note.gestion.carte.Dish;
 import com.note.gestion.carte.DishList;
@@ -29,7 +30,7 @@ import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.List;
 
-public class TableActivity extends AppCompatActivity {
+public class TableActivity extends AppCompatActivity implements SimpleDoubleAddDialog.NoticeDialogListener {
     private AppDatabase m_dataBase;
 
     private Table m_table;
@@ -46,6 +47,10 @@ public class TableActivity extends AppCompatActivity {
 
     private CarteAdapter m_carteAdapter;
     private GridView m_gridView;
+
+    private Dish m_callDish;
+
+    private static final String TABLE_CALL_DISH = "tableCallDish";
 
     private void getCurrentLists() {
         m_groupList = new GroupList( m_currentGroup.getId(), m_dataBase.groupDAO().getAllByParentGroup( m_currentGroup.getId() ) );
@@ -130,21 +135,28 @@ public class TableActivity extends AppCompatActivity {
 
                             hardReloadLists();
                         }  else {
-                            final int tableDishId = m_tableDishList.createTableDish( m_dishList.getDish( position - m_groupList.getGroups().size() ) );
-                            new AsyncTask<Void, Void, Integer>() {
-                                @Override
-                                protected Integer doInBackground(Void... voids) {
-                                    if( tableDishId >= 0 ) {
-                                        m_dataBase.tableDishDAO().update( m_tableDishList.getTableDish( tableDishId ) );
-                                    } else {
-                                        m_dataBase.tableDishDAO().insert( m_tableDishList.getLastTableDish() );
-                                        m_tableDishList.getLastTableDish().setId( m_dataBase.tableDishDAO().getLastId() );
+                            Dish dish = m_dishList.getDish( position - m_groupList.getGroups().size() );
+                            if( dish.getPrice() != null ) {
+                                final int tableDishId = m_tableDishList.createTableDish( dish, null, null );
+                                new AsyncTask<Void, Void, Integer>() {
+                                    @Override
+                                    protected Integer doInBackground(Void... voids) {
+                                        if( tableDishId >= 0 ) {
+                                            m_dataBase.tableDishDAO().update( m_tableDishList.getTableDish( tableDishId ) );
+                                        } else {
+                                            m_dataBase.tableDishDAO().insert( m_tableDishList.getLastTableDish() );
+                                            m_tableDishList.getLastTableDish().setId( m_dataBase.tableDishDAO().getLastId() );
+                                        }
+                                        return null;
                                     }
-                                    return null;
-                                }
-                            }.execute();
+                                }.execute();
 
-                            m_tableDishListAdapter.notifyDataSetChanged();
+                                m_tableDishListAdapter.notifyDataSetChanged();
+                            } else {
+                                m_callDish = dish;
+                                DialogFragment addCallDishDialog = SimpleDoubleAddDialog.newInstance( R.string.add_dish_dialog_title, R.string.add_dish_price_dialog_message );
+                                addCallDishDialog.show( getFragmentManager(), TABLE_CALL_DISH );
+                            }
                         }
                     }
                 } );
@@ -187,18 +199,6 @@ public class TableActivity extends AppCompatActivity {
         return true;
     }
 
-    private void doPrint() {
-        // Get a PrintManager instance
-        PrintManager printManager = ( PrintManager ) getSystemService( Context.PRINT_SERVICE );
-
-        // Set job name, which will be displayed in the print queue
-        String jobName = getString( R.string.app_name ) + " Document";
-
-        // Start a print job, passing in a PrintDocumentAdapter implementation
-        // to handle the generation of a print document
-        printManager.print( jobName, new PrintTableAdapter( getApplicationContext(), m_tableDishList.getTableDishes() ), null );
-    }
-
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
@@ -208,7 +208,7 @@ public class TableActivity extends AppCompatActivity {
                 return true;
 
             case R.id.action_print:
-                doPrint();
+                new PrintAdapter().doPrint( getApplicationContext(), m_tableDishList.getTableDishes() );
                 return true;
         }
         return super.onOptionsItemSelected(item);
@@ -221,6 +221,34 @@ public class TableActivity extends AppCompatActivity {
             hardReloadLists();
         } else {
             finish();
+        }
+    }
+
+    @Override
+    public void onDialogPositiveClick(DialogFragment dialog) {
+        if( dialog.getTag().equals( TABLE_CALL_DISH ) ) {
+            EditText newVatEdtc = dialog.getDialog().findViewById( R.id.edit_decimal );
+            final Double price = Double.valueOf(newVatEdtc.getText().toString());
+
+            m_tableDishList.createTableDish( m_callDish, price, 2 );
+
+            new AsyncTask<Void, Void, Integer>() {
+                @Override
+                protected Integer doInBackground(Void... voids) {
+
+                    m_dataBase.tableDishDAO().insert( m_tableDishList.getLastTableDish() );
+                    m_tableDishList.getLastTableDish().setId( m_dataBase.tableDishDAO().getLastId() );
+
+                    return null;
+                }
+
+                @Override
+                protected void onPostExecute(Integer result) {
+                    m_callDish = null;
+                }
+            }.execute();
+
+            m_tableDishListAdapter.notifyDataSetChanged();
         }
     }
 }
