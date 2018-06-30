@@ -2,6 +2,7 @@ package com.note.gestion.table;
 
 import android.app.Activity;
 import android.content.Context;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -33,11 +34,12 @@ public class TableDishListAdapter extends ArrayAdapter<TableDish> {
             convertView = ( ( Activity ) m_context ).getLayoutInflater().inflate( m_layoutResourceId, parent, false );
         }
 
-        ( ( TextView ) convertView.findViewById(android.R.id.text1)).setText( m_tableDishes.get( position ).getDish().getDesignation() );
+        ( ( TextView ) convertView.findViewById(R.id.item_dish_des)).setText( m_tableDishes.get( position ).getDish().getDesignation() );
+        ( ( TextView ) convertView.findViewById(R.id.item_dish_qty)).setText( String.valueOf( m_tableDishes.get( position ).getQty() ) );
         if( m_tableDishes.get( position ).getDish().getPrice() != null ) {
-            ( ( TextView ) convertView.findViewById(android.R.id.text2)).setText( String.valueOf( m_tableDishes.get( position ).getQty() ) );
+            ( ( TextView ) convertView.findViewById(R.id.item_dish_price)).setText( String.valueOf( m_tableDishes.get( position ).getDish().getPrice() ) );
         } else {
-            ( ( TextView ) convertView.findViewById(android.R.id.text2)).setText( String.valueOf( m_tableDishes.get( position ).getPrice() ) + " €" );
+            ( ( TextView ) convertView.findViewById(R.id.item_dish_price)).setText( String.valueOf( m_tableDishes.get( position ).getPrice() ) );
         }
 
         return convertView;

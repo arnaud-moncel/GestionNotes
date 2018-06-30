@@ -154,7 +154,7 @@ public class TableActivity extends AppCompatActivity implements SimpleDoubleAddD
                                 m_tableDishListAdapter.notifyDataSetChanged();
                             } else {
                                 m_callDish = dish;
-                                DialogFragment addCallDishDialog = SimpleDoubleAddDialog.newInstance( R.string.add_dish_dialog_title, R.string.add_dish_price_dialog_message );
+                                DialogFragment addCallDishDialog = SimpleDoubleAddDialog.newInstance( R.string.add_dish_dialog_title, R.string.add_dish_price_dialog_message, R.string.add_dish_qty_message );
                                 addCallDishDialog.show( getFragmentManager(), TABLE_CALL_DISH );
                             }
                         }
@@ -162,7 +162,7 @@ public class TableActivity extends AppCompatActivity implements SimpleDoubleAddD
                 } );
 
                 m_tableDishListAdapter = new TableDishListAdapter(TableActivity.this,
-                        android.R.layout.simple_list_item_2, m_tableDishList.getTableDishes() );
+                        R.layout.item_list_table_dish, m_tableDishList.getTableDishes() );
 
                 //ListView pour les tables
                 ListView listView = findViewById( R.id.dish_list );
@@ -208,7 +208,7 @@ public class TableActivity extends AppCompatActivity implements SimpleDoubleAddD
                 return true;
 
             case R.id.action_print:
-                new PrintAdapter().doPrint( getApplicationContext(), m_tableDishList.getTableDishes() );
+                new PrintAdapter().doPrint( getApplicationContext(), m_table.getId(), m_tableDishList.getTableDishes() );
                 return true;
         }
         return super.onOptionsItemSelected(item);
@@ -227,10 +227,13 @@ public class TableActivity extends AppCompatActivity implements SimpleDoubleAddD
     @Override
     public void onDialogPositiveClick(DialogFragment dialog) {
         if( dialog.getTag().equals( TABLE_CALL_DISH ) ) {
-            EditText newVatEdtc = dialog.getDialog().findViewById( R.id.edit_decimal );
-            final Double price = Double.valueOf(newVatEdtc.getText().toString());
+            EditText newTableDishEdtd = dialog.getDialog().findViewById( R.id.edit_price );
+            Double price = Double.valueOf(newTableDishEdtd.getText().toString());
 
-            m_tableDishList.createTableDish( m_callDish, price, 2 );
+            EditText newTableDishEdtq = dialog.getDialog().findViewById( R.id.edit_qty );
+            Integer qty = Integer.valueOf(newTableDishEdtq.getText().toString());
+
+            m_tableDishList.createTableDish( m_callDish, price, qty );
 
             new AsyncTask<Void, Void, Integer>() {
                 @Override

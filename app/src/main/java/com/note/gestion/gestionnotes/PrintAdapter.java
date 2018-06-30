@@ -1,7 +1,7 @@
 package com.note.gestion.gestionnotes;
 
 import android.content.Context;
-import android.widget.Toast;
+import android.os.AsyncTask;
 
 import com.epson.epos2.Epos2Exception;
 import com.epson.epos2.printer.Printer;
@@ -27,8 +27,6 @@ public class PrintAdapter implements ReceiveListener {
             m_printer = new Printer( Printer.TM_T20, Printer.MODEL_ANK, m_context );
         }
         catch (Exception e) {
-            Toast t = Toast.makeText( m_context, e.getMessage(), Toast.LENGTH_LONG );
-            t.show();
             return false;
         }
 
@@ -37,7 +35,7 @@ public class PrintAdapter implements ReceiveListener {
         return true;
     }
 
-    private boolean createReceiptData( List<TableDish> tableDishList ) {
+    private boolean createReceiptData( int tableId, List<TableDish> tableDishList ) {
         StringBuilder textData = new StringBuilder();
 
         if ( m_printer == null ) {
@@ -64,6 +62,7 @@ public class PrintAdapter implements ReceiveListener {
             m_printer.addFeedLine( 1 );
             SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
             textData.append( "Date: " ).append( sdf.format( new Date() ) ).append( "\n" );
+            textData.append( "N° : " ).append( tableId ).append( "\n" );
             textData.append("--------------------------------------\n");
             m_printer.addText(textData.toString());
             textData.delete(0, textData.length());
@@ -144,12 +143,8 @@ public class PrintAdapter implements ReceiveListener {
             m_printer.addCut(Printer.CUT_FEED);
         }
         catch (Exception e) {
-            Toast t = Toast.makeText( m_context, e.getMessage(), Toast.LENGTH_LONG );
-            t.show();
             return false;
         }
-
-        textData = null;
 
         return true;
     }
@@ -176,9 +171,7 @@ public class PrintAdapter implements ReceiveListener {
         try {
             m_printer.connect("TCP:192.168.1.35", Printer.PARAM_DEFAULT);
         }
-        catch (Exception e) {
-            Toast t = Toast.makeText( m_context, e.getMessage(), Toast.LENGTH_LONG );
-            t.show();
+        catch (Epos2Exception e) {
             return false;
         }
 
@@ -187,8 +180,7 @@ public class PrintAdapter implements ReceiveListener {
             isBeginTransaction = true;
         }
         catch (Exception e) {
-            Toast t = Toast.makeText( m_context, e.getMessage(), Toast.LENGTH_LONG );
-            t.show();
+            isBeginTransaction = false;
         }
 
         if (!isBeginTransaction) {
@@ -215,14 +207,7 @@ public class PrintAdapter implements ReceiveListener {
 
         PrinterStatusInfo status = m_printer.getStatus();
 
-        if ( status.getPaper() == Printer.PAPER_NEAR_END ) {
-            Toast t = Toast.makeText( m_context, "Bientot plus de papier", Toast.LENGTH_LONG );
-            t.show();
-        }
-
         if (status.getConnection() == Printer.FALSE || status.getOnline() == Printer.FALSE ) {
-            Toast t = Toast.makeText( m_context, "Offline", Toast.LENGTH_LONG );
-            t.show();
             try {
                 m_printer.disconnect();
             }
@@ -236,8 +221,6 @@ public class PrintAdapter implements ReceiveListener {
             m_printer.sendData(Printer.PARAM_DEFAULT);
         }
         catch (Exception e) {
-            Toast t = Toast.makeText( m_context, e.getMessage(), Toast.LENGTH_LONG );
-            t.show();
             try {
                 m_printer.disconnect();
             }
@@ -250,13 +233,13 @@ public class PrintAdapter implements ReceiveListener {
         return true;
     }
 
-    public boolean doPrint( Context context, List<TableDish> tableDishList ) {
+    public boolean doPrint( Context context, int tableId, List<TableDish> tableDishList ) {
         m_context = context;
         if (!initializeObject()) {
             return false;
         }
 
-        if (!createReceiptData( tableDishList )) {
+        if (!createReceiptData( tableId, tableDishList )) {
             finalizeObject();
             return false;
         }
@@ -269,57 +252,24 @@ public class PrintAdapter implements ReceiveListener {
         return true;
     }
 
-    private void disconnectPrinter() {
-        if (m_printer == null) {
-            return;
-        }
-
-        try {
-            m_printer.endTransaction();
-        }
-        catch (final Exception e) {
-            new Runnable() {
-                @Override
-                public synchronized void run() {
-                    Toast t = Toast.makeText( m_context, "end trans", Toast.LENGTH_LONG );
-                    t.show();
-                }
-            };
-        }
-
-        try {
-            m_printer.disconnect();
-        }
-        catch (final Exception e) {
-            new Runnable() {
-                @Override
-                public synchronized void run() {
-                    Toast t = Toast.makeText( m_context, "disconect", Toast.LENGTH_LONG );
-                    t.show();
-                }
-            };
-        }
-
-        finalizeObject();
-    }
-
     @Override
     public void onPtrReceive(Printer printer, int i, PrinterStatusInfo printerStatusInfo, String s) {
-        new Runnable() {
+
+        new AsyncTask<Void, Void, Integer>() {
             @Override
-            public synchronized void run() {
-                Toast t = Toast.makeText( m_context, "result", Toast.LENGTH_LONG );
-                t.show();
+            protected Integer doInBackground(Void... voids){
+                try {
+                    m_printer.clearCommandBuffer();
+                    m_printer.setReceiveEventListener( null );
+                    m_printer.endTransaction();
+                    m_printer.disconnect();
+                }
+                catch( Epos2Exception e ) {
 
-                //dispPrinterWarnings(status);
-
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        disconnectPrinter();
-                    }
-                }).start();
+                }
+                m_printer = null;
+                return null;
             }
-        };
+        }.execute();
     }
 }

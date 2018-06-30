@@ -26,4 +26,5 @@
     <string name="add_group_vat_dialog_message">Groupe de TVA :</string>
     <string name="add_dish_price_dialog_message">Prix du plat :</string>
     <string name="ic_print_title">Print</string>
+    <string name="add_dish_qty_message">Quantité du plat :</string>
 </resources>

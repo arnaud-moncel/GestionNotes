@@ -6,15 +6,27 @@
     android:orientation="vertical">
 
     <TextView
-        android:id="@+id/text_view"
+        android:id="@+id/text_price"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:labelFor="@+id/edit_decimal"/>
+        android:labelFor="@+id/edit_price"/>
 
     <EditText
-        android:id="@+id/edit_decimal"
+        android:id="@+id/edit_price"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:inputType="numberDecimal" />
+
+    <TextView
+        android:id="@+id/text_qty"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:labelFor="@+id/edit_qty"/>
+
+    <EditText
+        android:id="@+id/edit_qty"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:inputType="number" />
 
 </LinearLayout>

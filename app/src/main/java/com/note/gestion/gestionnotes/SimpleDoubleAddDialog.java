@@ -23,18 +23,23 @@ public class SimpleDoubleAddDialog extends DialogFragment {
     private NoticeDialogListener m_Listener;
     private AlertDialog m_dialog;
 
+    private Boolean m_edtdNotEmpty = false;
+    private Boolean m_edtqNotEmpty = false;
+
     private static final String TITLE = "title";
     private static final String MSG = "message";
+    private static final String MSG2 = "message2";
 
     public interface NoticeDialogListener {
         void onDialogPositiveClick(DialogFragment dialog);
     }
 
-    public static SimpleDoubleAddDialog newInstance(int title, int message ) {
+    public static SimpleDoubleAddDialog newInstance(int title, int message, int message2 ) {
         SimpleDoubleAddDialog dialog = new SimpleDoubleAddDialog();
         Bundle args = new Bundle();
         args.putInt( TITLE, title);
         args.putInt( MSG, message );
+        args.putInt( MSG2, message2 );
         dialog.setArguments(args);
         return dialog;
     }
@@ -69,7 +74,7 @@ public class SimpleDoubleAddDialog extends DialogFragment {
             @Override
             public void onShow(final DialogInterface dialog) {
                 ((AlertDialog) dialog).getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
-                final EditText edt = ((AlertDialog) dialog).findViewById( R.id.edit_decimal );
+                final EditText edt = ((AlertDialog) dialog).findViewById( R.id.edit_price );
                 edt.post(new Runnable() {
                     @Override
                     public void run() {
@@ -81,9 +86,10 @@ public class SimpleDoubleAddDialog extends DialogFragment {
             }
         });
 
-        ((TextView) dialogView.findViewById( R.id.text_view )).setText( getArguments().getInt( MSG ) );
+        ((TextView) dialogView.findViewById( R.id.text_price )).setText( getArguments().getInt( MSG ) );
+        ((TextView) dialogView.findViewById( R.id.text_qty )).setText( getArguments().getInt( MSG2 ) );
 
-        EditText nEdtd = dialogView.findViewById(R.id.edit_decimal);
+        EditText nEdtd = dialogView.findViewById(R.id.edit_price);
         nEdtd.addTextChangedListener(new TextWatcher() {
 
             @Override
@@ -92,16 +98,46 @@ public class SimpleDoubleAddDialog extends DialogFragment {
             }
 
             @Override
-            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                if (TextUtils.isEmpty( charSequence )) {
+            public void onTextChanged(CharSequence s, int i, int i1, int i2) {
+                if (TextUtils.isEmpty( s )) {
+                    m_edtdNotEmpty = false;
                     m_dialog.getButton( AlertDialog.BUTTON_POSITIVE ).setEnabled(false);
                 } else {
-                    m_dialog.getButton( AlertDialog.BUTTON_POSITIVE ).setEnabled(true);
+                    m_edtdNotEmpty = true;
+                    if( m_edtqNotEmpty ) {
+                        m_dialog.getButton( AlertDialog.BUTTON_POSITIVE ).setEnabled(true);
+                    }
                 }
             }
 
             @Override
             public void afterTextChanged(Editable editable) {
+            }
+        });
+
+        EditText nEdtq = dialogView.findViewById(R.id.edit_qty);
+        nEdtq.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                if (TextUtils.isEmpty( s )) {
+                    m_edtqNotEmpty = false;
+                    m_dialog.getButton( AlertDialog.BUTTON_POSITIVE ).setEnabled(false);
+                } else {
+                    m_edtqNotEmpty = true;
+                    if( m_edtdNotEmpty ) {
+                        m_dialog.getButton( AlertDialog.BUTTON_POSITIVE ).setEnabled(true);
+                    }
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
             }
         });
 
